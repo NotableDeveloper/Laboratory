@@ -1,4 +1,4 @@
-package external_request.clients.simple;
+package external_request.simple;
 
 import external_request.abstracts.SiteManager;
 import external_request.abstracts.SiteWorker;

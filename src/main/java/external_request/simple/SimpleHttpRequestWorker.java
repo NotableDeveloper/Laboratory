@@ -1,4 +1,4 @@
-package external_request.clients.simple;
+package external_request.simple;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -6,9 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import external_request.abstracts.SiteWorker;
 import external_request.requests.DefaultRequest;
-import external_request.requests.simple.SimpleHttpRequest;
 import external_request.responses.DefaultResponse;
-import external_request.responses.simple.SimpleHttpResponse;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

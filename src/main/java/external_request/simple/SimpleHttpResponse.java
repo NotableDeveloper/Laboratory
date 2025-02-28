@@ -1,4 +1,4 @@
-package external_request.responses.simple;
+package external_request.simple;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

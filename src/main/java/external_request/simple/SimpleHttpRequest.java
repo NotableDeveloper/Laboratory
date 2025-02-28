@@ -1,4 +1,4 @@
-package external_request.requests.simple;
+package external_request.simple;
 
 import external_request.requests.DefaultRequest;
 import external_request.requests.RequestType;

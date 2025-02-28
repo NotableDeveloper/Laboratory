@@ -1,7 +1,7 @@
 package external_request.clients;
 
-import external_request.clients.simple.SimpleSiteManager;
-import external_request.requests.simple.SimpleHttpRequest;
+import external_request.simple.SimpleSiteManager;
+import external_request.simple.SimpleHttpRequest;
 
 public class Client {
     public static void main(String[] args) {
