@@ -16,7 +16,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class SimpleHttpRequestWorker implements SiteWorker {
     private ExecutorService workerPool;
@@ -57,6 +56,10 @@ public class SimpleHttpRequestWorker implements SiteWorker {
         HttpURLConnection connection = null;
 
         try {
+            /*
+                To do :
+                Connection Timeout, Retry 관련 설정도 추가하기
+             */
             URL url = new URL(requestUrl);
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod(requestMethod);
