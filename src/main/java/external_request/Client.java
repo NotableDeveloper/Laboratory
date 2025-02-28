@@ -1,4 +1,4 @@
-package external_request.clients;
+package external_request;
 
 import external_request.simple.SimpleSiteManager;
 import external_request.simple.SimpleHttpRequest;

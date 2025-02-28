@@ -29,23 +29,27 @@ public class SimpleHttpRequestWorker implements SiteWorker {
     public DefaultResponse requestAndReceive(DefaultRequest defaultRequest) {
         SimpleHttpRequest request = (SimpleHttpRequest) defaultRequest;
 
-        Future<DefaultResponse> future = workerPool.submit(() -> {
-            HttpURLConnection connection = getConnection(request.getHttpMethod(), request.getUrl());
-
-            try {
-                String requestBody = request.getRawData().toString();
-                request(connection, requestBody);
-                String response = receive(connection);
-                return new SimpleHttpResponse(response);
-            } finally {
-                connection.disconnect();
-            }
-        });
-
         try {
-            return future.get();
+            return workerPool.submit(() -> requestTask(request)).get();
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private DefaultResponse requestTask(SimpleHttpRequest request) {
+        HttpURLConnection connection = getConnection(request.getHttpMethod(), request.getUrl());
+
+        try {
+            String requestBody = request.getRawData().toString();
+            request(connection, requestBody);
+            String response = receive(connection);
+            return new SimpleHttpResponse(response);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
     }
 
