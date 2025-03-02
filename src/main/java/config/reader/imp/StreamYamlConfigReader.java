@@ -51,6 +51,7 @@ public class StreamYamlConfigReader implements ConfigReader {
 
         // YAML 파일을 읽어서 내용을 채우고, 반환할 비어있는 객체 생성
         Object configInstance = createConfigInstance();
+        System.out.println("Reading config file: " + configFilePath);
 
         try (InputStream inputStream = new FileInputStream(configFilePath)) {
             for (Object rawData : yaml.loadAll(inputStream)) {

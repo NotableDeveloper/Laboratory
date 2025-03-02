@@ -1,5 +1,12 @@
 package config.system.fourth.members;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+@ToString
+@Getter
+@NoArgsConstructor
 public class SSL {
     private boolean enable = false;
 
@@ -15,65 +22,4 @@ public class SSL {
     private String keystoreClientPassword = "";
     private String keystoreClientTrustManager = "";
     private String keystoreClientManagerPassword = "";
-
-    public boolean isEnable() {
-        return enable;
-    }
-
-    public String getKeystoreServerFile() {
-        return keystoreServerFile;
-    }
-
-    public String getKeystoreServerPassword() {
-        return keystoreServerPassword;
-    }
-
-    public String getKeystoreServerTrustManager() {
-        return keystoreServerTrustManager;
-    }
-
-    public String getKeystoreServerManagerPassword() {
-        return keystoreServerManagerPassword;
-    }
-
-    public String getKeystoreClientFile() {
-        return keystoreClientFile;
-    }
-
-    public String getKeystoreClientPassword() {
-        return keystoreClientPassword;
-    }
-
-    public String getKeystoreClientTrustManager() {
-        return keystoreClientTrustManager;
-    }
-
-    public String getKeystoreClientManagerPassword() {
-        return keystoreClientManagerPassword;
-    }
-
-    public String getServerAddress() {
-        return serverAddress;
-    }
-
-    public int getServerPort() {
-        return serverPort;
-    }
-
-    @Override
-    public String toString() {
-        return "SSL config {" +
-                "enable=" + enable +
-                ", serverAddress='" + serverAddress + '\'' +
-                ", serverPort=" + serverPort +
-                ", keystoreServerFile='" + keystoreServerFile + '\'' +
-                ", keystoreServerPassword='" + keystoreServerPassword + '\'' +
-                ", keystoreServerTrustManager='" + keystoreServerTrustManager + '\'' +
-                ", keystoreServerManagerPassword='" + keystoreServerManagerPassword + '\'' +
-                ", keystoreClientFile='" + keystoreClientFile + '\'' +
-                ", keystoreClientPassword='" + keystoreClientPassword + '\'' +
-                ", keystoreClientTrustManager='" + keystoreClientTrustManager + '\'' +
-                ", keystoreClientManagerPassword='" + keystoreClientManagerPassword + '\'' +
-                " }";
-    }
 }
