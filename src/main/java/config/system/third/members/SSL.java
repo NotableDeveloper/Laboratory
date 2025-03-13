@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @NoArgsConstructor
-public class SecondInnerSystem {
+public class SSL {
     private boolean enable = false;
     private String keystoreFile = "";
     private String keystorePassword = "";

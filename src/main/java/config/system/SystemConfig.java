@@ -12,7 +12,6 @@ import lombok.ToString;
 import java.lang.reflect.Field;
 
 @NoArgsConstructor
-@Getter
 @ToString
 public class SystemConfig {
     private FirstSystemService firstSystemService;

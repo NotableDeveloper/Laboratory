@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @NoArgsConstructor
-public class FirstInnerSystem {
+public class HeartSystem {
     private boolean enable = false;
     private int interval = 0;
     private int aliveCount = 0;

@@ -11,10 +11,10 @@ import lombok.ToString;
 @Getter
 public class FourthSystemService {
     private String innerSystemAddress = "";
-    private int enginePort = 0;
-    private String dialerAddress = "";
-    private int dialerPort = 0;
+    private int innerSystemPort = 0;
+    private String exposeAddress = "";
+    private int exposePort = 0;
     private SSL ssl;
-    private InnerThread engineThread;
+    private InnerThread innerThread;
 }
 

@@ -10,7 +10,6 @@ import lombok.ToString;
 import java.lang.reflect.Field;
 
 @NoArgsConstructor
-@Getter
 @ToString
 public class SiteConfig {
     private FirstExternalService firstExternalService;
