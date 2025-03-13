@@ -5,7 +5,7 @@ import java.util.LinkedList;
 public class LinkedQueue {
     private String name;
     private int count;
-    private LinkedList queue;
+    private LinkedList<String> queue;
 
     public LinkedQueue(String name) {
         this.name = name;
@@ -13,18 +13,18 @@ public class LinkedQueue {
         queue = new LinkedList();
     }
 
-    public synchronized void put(Object item){
+    public synchronized void put(String item){
         queue.add(item);
         count++;
         notify();
     }
 
-    public synchronized Object get() throws InterruptedException {
+    public synchronized String get() throws InterruptedException {
         while(count <= 0){
             wait();
         }
 
-        Object result = queue.removeFirst();
+        String result = queue.removeFirst();
         count--;
         notifyAll();
 
