@@ -43,7 +43,6 @@ public class StreamYamlConfigReader implements ConfigReader {
      * @param configFilePath YAML 파일이 위치한 경로
      * @return 최상위 클래스인 Object 타입의 설정(SystemConfig or SiteConfig) 정보가 담긴 인스턴스
      */
-
     @Override
     public Object readFromConfigFile(String configFilePath) {
         yaml = new Yaml();
