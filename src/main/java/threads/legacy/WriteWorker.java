@@ -22,6 +22,8 @@ public class WriteWorker extends Thread {
                 printingQueue.put(token.toString());
             } catch (Exception e){
                 System.err.println(e.getMessage());
+                Thread.currentThread().interrupt();
+                break;
             }
         }
     }
