@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <conversionRule conversionWord="maskPhone" converterClass="logback_filtering.PhoneNumberConverter"/>
+    <conversionRule conversionWord="maskPhone" converterClass="logback_filtering.UserDataConverter"/>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <!--> <filter class="logback_filtering.PhoneNumberFilter"/> <-->

@@ -8,13 +8,13 @@ public class Client {
 
     public static void main(String[] args) {
         User user1 = User.builder()
-                    .name("seongjin")
+                    .name("성진")
                     .email("seongjin@abc.co.kr")
                     .phoneNumber("01012345678")
                     .build();
 
         User user2 = User.builder()
-                    .name("seongjin")
+                    .name("진성")
                     .email("seongjin@abc.co.kr")
                     .phoneNumber("None")
                     .build();
