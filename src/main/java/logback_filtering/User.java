@@ -1,4 +1,4 @@
-package logback_filter;
+package logback_filtering;
 
 import lombok.Builder;
 import lombok.Getter;
