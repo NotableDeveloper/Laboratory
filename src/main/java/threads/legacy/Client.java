@@ -6,6 +6,7 @@ public class Client {
         LinkedQueue printingQueue = new LinkedQueue("Printing");
 
         WriteWorker writeWorker = new WriteWorker(waitingQueue, printingQueue);
+
         PrintWorker printWorker = new PrintWorker(printingQueue);
 
         writeWorker.start();
