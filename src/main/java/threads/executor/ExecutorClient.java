@@ -9,13 +9,12 @@ import java.util.concurrent.TimeUnit;
 public class ExecutorClient {
 
     public static void main(String[] args) {
-        BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(10);
         ExecutorService executorService = Executors.newFixedThreadPool(3);
 
         int taskCount = 10;
 
-        Thread producerThread = new Thread(new Producer(queue, taskCount));
-        Thread consumerThread = new Thread(new Consumer(queue, executorService));
+        Thread producerThread = new Thread(new Producer(taskCount));
+        Thread consumerThread = new Thread(new Consumer(executorService));
 
         producerThread.start();
         consumerThread.start();
@@ -27,7 +26,7 @@ public class ExecutorClient {
         }
 
         // Wait for the queue to be empty
-        while (!queue.isEmpty()) {
+        while (!TaskQueue.getInstance().isEmpty()) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {

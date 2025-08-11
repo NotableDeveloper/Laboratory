@@ -3,12 +3,12 @@ package threads.executor;
 import java.util.concurrent.BlockingQueue;
 
 public class Producer implements Runnable {
-    private final BlockingQueue<Runnable> queue;
     private final int taskCount;
+    private final TaskQueue queue;
 
-    public Producer(BlockingQueue<Runnable> queue, int taskCount) {
-        this.queue = queue;
+    public Producer(int taskCount) {
         this.taskCount = taskCount;
+        this.queue = TaskQueue.getInstance();
     }
 
     @Override

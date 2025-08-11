@@ -4,12 +4,12 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 
 public class Consumer implements Runnable {
-    private final BlockingQueue<Runnable> queue;
     private final ExecutorService executorService;
+    private final TaskQueue queue;
 
-    public Consumer(BlockingQueue<Runnable> queue, ExecutorService executorService) {
-        this.queue = queue;
+    public Consumer(ExecutorService executorService) {
         this.executorService = executorService;
+        this.queue = TaskQueue.getInstance();
     }
 
     @Override
