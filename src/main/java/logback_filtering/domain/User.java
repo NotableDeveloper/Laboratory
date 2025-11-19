@@ -1,4 +1,4 @@
-package logback_filtering;
+package logback_filtering.domain;
 
 import lombok.Builder;
 import lombok.Getter;

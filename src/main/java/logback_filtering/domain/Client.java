@@ -1,4 +1,4 @@
-package logback_filtering;
+package logback_filtering.domain;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

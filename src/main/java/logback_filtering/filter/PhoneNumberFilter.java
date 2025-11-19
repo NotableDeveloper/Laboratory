@@ -1,4 +1,4 @@
-package logback_filtering;
+package logback_filtering.filter;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.filter.Filter;
