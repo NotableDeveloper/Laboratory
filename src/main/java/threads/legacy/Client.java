@@ -15,5 +15,19 @@ public class Client {
         for(int i = 0; i < 1000; i++){
             waitingQueue.put("Text");
         }
+
+        try {
+            while(!waitingQueue.isEmpty() || !printingQueue.isEmpty()){
+                Thread.sleep(100);
+            }
+
+            writeWorker.interrupt();
+            printWorker.interrupt();
+
+            writeWorker.join();
+            printWorker.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }

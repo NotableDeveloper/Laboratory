@@ -26,4 +26,8 @@ public class LinkedQueue {
 
         return result;
     }
+
+    public synchronized boolean isEmpty() {
+        return queue.isEmpty();
+    }
 }
