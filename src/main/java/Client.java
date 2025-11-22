@@ -1,5 +1,3 @@
-package threads.latest;
-
 import java.util.concurrent.*;
 
 public class Client {

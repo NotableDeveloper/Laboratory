@@ -1,5 +1,3 @@
-package threads.latest;
-
 import java.util.concurrent.BlockingQueue;
 
 public class PrintTask implements Runnable {

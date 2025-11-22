@@ -1,5 +1,3 @@
-package threads.latest;
-
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 
