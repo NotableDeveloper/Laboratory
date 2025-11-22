@@ -14,18 +14,11 @@ dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 
-    // YAML
-    implementation 'org.yaml:snakeyaml:2.0'
-
     // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.28'
     annotationProcessor 'org.projectlombok:lombok:1.18.28'
     testCompileOnly 'org.projectlombok:lombok:1.18.28'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.28'
-
-    // JSON
-    implementation group: 'com.google.code.gson', name: 'gson', version: '2.10'
-    implementation group: 'com.google.code.gson', name: 'gson', version: '2.10'
 
     // SLF4J
     implementation 'org.slf4j:slf4j-api:1.7.36'
@@ -34,8 +27,23 @@ dependencies {
     implementation 'ch.qos.logback:logback-classic:1.2.11'
     implementation 'ch.qos.logback:logback-core:1.2.11'
     implementation 'ch.qos.logback:logback-access:1.2.9'
+
+    // Mybatis
+    implementation 'org.mybatis:mybatis:3.5.19'
+
+    // MySQL
+    implementation 'com.mysql:mysql-connector-j:9.5.0'
 }
 
 test {
     useJUnitPlatform()
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs = ["src/main/resources", "src/main/java"]
+            includes = ["**/*.xml"]
+        }
+    }
 }
