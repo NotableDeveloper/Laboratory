@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <conversionRule conversionWord="maskPhone" converterClass="logback_filtering.UserDataConverter"/>
-
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <!--> <filter class="logback_filtering.PhoneNumberFilter"/> <-->
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %maskPhone(%msg)\n</pattern>
+            <pattern>%d{yyyy-MM-dd-HH:mm:ss} [%thread] %-5level %logger{36} - %msg</pattern>
         </encoder>
     </appender>
 
-    <logger name="logback_filtering.User" level="INFO" additivity="false">
-        <appender-ref ref="CONSOLE"/>
-    </logger>
 
     <root level="DEBUG">
         <appender-ref ref="CONSOLE" />
