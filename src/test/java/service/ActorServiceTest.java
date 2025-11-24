@@ -17,6 +17,14 @@ class ActorServiceTest {
         actorService = new ActorService();
     }
 
+    /*
+        mysql> select count(*) from actor;
+        +----------+
+        | count(*) |
+        +----------+
+        |      200 |
+        +----------+
+     */
     @Test
     void testFindAllActors() {
         List<Actor> actors = actorService.findAllActors();
@@ -44,6 +52,15 @@ class ActorServiceTest {
         assertEquals("GUINESS", actor.getLastName());
     }
 
+    /*
+        mysql> select * from actor where last_name = "CHASE";
+        +----------+------------+-----------+---------------------+
+        | actor_id | first_name | last_name | last_update         |
+        +----------+------------+-----------+---------------------+
+        |        3 | ED         | CHASE     | 2006-02-15 04:34:33 |
+        |      176 | JON        | CHASE     | 2006-02-15 04:34:33 |
+        +----------+------------+-----------+---------------------+
+     */
     @Test
     void testFindActorsByLastName() {
         // Find actors with a common last name.
