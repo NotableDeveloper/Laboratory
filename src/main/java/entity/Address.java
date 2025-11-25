@@ -19,7 +19,6 @@ public class Address {
     public void setAddressId(Integer addressId) {
         this.addressId = addressId;
     }
-
     public String getAddress() {
         return address;
     }

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.AddressMapper">
+    <select id="findAllAddresses" resultType="entity.Address">
+        SELECT
+            address_id, address, address2, district, city_id, postal_code, phone, last_update
+        FROM
+            address
+    </select>
+
+    <select id="findAddressById" resultType="entity.Address">
+        SELECT
+            address_id, address, address2, district, city_id, postal_code, phone, last_update
+        FROM
+            address
+        WHERE
+            address_id = ${addressId}
+    </select>
+
+    <select id="findAddressByCityId" resultType="entity.Address">
+        SELECT
+            address_id, address, address2, district, city_id, postal_code, phone, last_update
+        FROM
+            address
+        WHERE
+            city_id = ${cityId}
+    </select>
+
+    <select id="findAddressByPostalCode" resultType="entity.Address">
+        SELECT
+            address_id, address, address2, district, city_id, postal_code, phone, last_update
+        FROM
+            address
+        WHERE
+            postal_code = ${postalCode}
+    </select>
+</mapper>

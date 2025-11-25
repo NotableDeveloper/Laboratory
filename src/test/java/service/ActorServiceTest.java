@@ -30,7 +30,6 @@ class ActorServiceTest {
         List<Actor> actors = actorService.findAllActors();
         assertNotNull(actors);
         assertFalse(actors.isEmpty());
-        // Sakila DB contains 200 actors.
         assertTrue(actors.size() >= 200, "Should contain at least 200 actors.");
     }
 

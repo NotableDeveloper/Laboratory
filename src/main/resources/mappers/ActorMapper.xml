@@ -4,14 +4,27 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="mapper.ActorMapper">
     <select id="findAllActors" resultType="entity.Actor">
-        SELECT actor_id, first_name, last_name, last_update FROM actor
+        SELECT
+            actor_id, first_name, last_name, last_update
+        FROM
+            actor
     </select>
 
     <select id="findActorById" resultType="entity.Actor">
-        SELECT actor_id, first_name, last_name, last_update FROM actor WHERE actor_id = #{actorId}
+        SELECT
+            actor_id, first_name, last_name, last_update
+        FROM
+            actor
+        WHERE
+            actor_id = #{actorId}
     </select>
 
     <select id="findActorsByLastName" resultType="entity.Actor">
-        SELECT actor_id, first_name, last_name, last_update FROM actor WHERE last_name = #{lastName}
+        SELECT
+            actor_id, first_name, last_name, last_update
+        FROM
+            actor
+        WHERE
+            last_name = #{lastName}
     </select>
 </mapper>

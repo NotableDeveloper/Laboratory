@@ -8,7 +8,6 @@ import util.MyBatisUtil;
 import java.util.List;
 
 public class ActorService {
-
     public List<Actor> findAllActors() {
         SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession();
         try {
