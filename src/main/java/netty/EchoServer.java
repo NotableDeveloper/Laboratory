@@ -35,6 +35,10 @@ public class EchoServer {
 
             ChannelFuture f = b.bind(port).sync();
             System.out.println("Server started on port: " + port);
+
+            System.out.println("Closing server...");
+            f.channel().close();
+
             f.channel().closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();
@@ -48,5 +52,6 @@ public class EchoServer {
             port = Integer.parseInt(args[0]);
         }
         new EchoServer(port).run();
+
     }
 }

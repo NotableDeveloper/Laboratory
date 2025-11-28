@@ -17,6 +17,7 @@ public class EchoServerHandler extends ChannelInboundHandlerAdapter {
         ByteBuf in = (ByteBuf) msg;
         System.out.println("Received: " + in.toString(StandardCharsets.UTF_8));
         ctx.write(msg);
+        ctx.close(); // Close the channel after receiving and processing the message
     }
 
     @Override
