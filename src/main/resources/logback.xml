@@ -1,19 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <conversionRule conversionWord="maskPhone" converterClass="logback_filtering.UserDataConverter"/>
+    <conversionRule conversionWord="maskPhone" converterClass="logback_filtering.filter.UserDataConverter"/>
 
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <!--> <filter class="logback_filtering.PhoneNumberFilter"/> <-->
+    <!-- Appender for logs that need phone number masking (e.g., logback_filtering package) -->
+    <appender name="CONSOLE_MASKED" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %maskPhone(%msg)\n</pattern>
         </encoder>
     </appender>
 
-    <logger name="logback_filtering.User" level="INFO" additivity="false">
-        <appender-ref ref="CONSOLE"/>
+    <!-- Appender for general logs without phone number masking -->
+    <appender name="CONSOLE_UNMASKED" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Logger for logback_filtering package - uses masked console appender -->
+    <logger name="logback_filtering" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE_MASKED"/>
     </logger>
 
+    <!-- Root logger - uses unmasked console appender for all other logs -->
     <root level="DEBUG">
-        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="CONSOLE_UNMASKED" />
     </root>
 </configuration>

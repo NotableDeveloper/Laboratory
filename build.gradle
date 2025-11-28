@@ -1,5 +1,10 @@
 plugins {
     id 'java'
+    id 'application'
+}
+
+application {
+    mainClass = 'netty.echo.EchoServer'
 }
 
 group = 'study'
@@ -10,6 +15,9 @@ repositories {
 }
 
 dependencies {
+    // Netty
+    implementation 'io.netty:netty-all:4.1.100.Final'
+
     // Junit5
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
