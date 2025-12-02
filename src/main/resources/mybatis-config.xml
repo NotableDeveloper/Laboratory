@@ -18,8 +18,5 @@
         </environment>
     </environments>
         <mappers>
-            <mapper resource="mappers/ActorMapper.xml"/>
-            <mapper resource="mappers/AddressMapper.xml"/>
-            <mapper resource="mappers/FilmMapper.xml"/>
         </mappers>
 </configuration>
