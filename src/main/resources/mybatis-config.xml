@@ -18,5 +18,6 @@
         </environment>
     </environments>
         <mappers>
-        </mappers>
+        <mapper class="SqlSession.ConnectionTestMapper"/>
+    </mappers>
 </configuration>
