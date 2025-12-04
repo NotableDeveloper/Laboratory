@@ -1,5 +1,6 @@
-package SqlSession;
+package SqlSession.example;
 
+import SqlSession.mapper.ConnectionTestMapper;
 import org.apache.ibatis.datasource.pooled.PooledDataSource;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.Configuration;

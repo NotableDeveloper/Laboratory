@@ -18,6 +18,6 @@
         </environment>
     </environments>
         <mappers>
-        <mapper class="SqlSession.ConnectionTestMapper"/>
+        <mapper class="SqlSession.mapper.ConnectionTestMapper"/>
     </mappers>
 </configuration>

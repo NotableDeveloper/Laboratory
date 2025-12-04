@@ -1,4 +1,4 @@
-package SqlSession;
+package SqlSession.mapper;
 
 import org.apache.ibatis.annotations.Select;
 

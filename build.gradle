@@ -55,10 +55,15 @@ tasks.withType(JavaCompile) {
 
 task runXmlSqlSessionExample(type: JavaExec) {
     classpath sourceSets.main.runtimeClasspath
-    mainClass = 'SqlSession.BuildSqlSessionWithXML'
+    mainClass = 'SqlSession.example.BuildSqlSessionWithXML'
 }
 
 task runJavaSqlSessionExample(type: JavaExec) {
     classpath sourceSets.main.runtimeClasspath
-    mainClass = 'SqlSession.BuildSqlSessionWithJava'
+    mainClass = 'SqlSession.example.BuildSqlSessionWithJava'
+}
+
+task runSqlSessionLifecycleExample(type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    mainClass = 'SqlSession.example.SqlSessionLifecycle'
 }
