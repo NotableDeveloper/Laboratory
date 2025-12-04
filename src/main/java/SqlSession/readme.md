@@ -1,6 +1,6 @@
 # SqlSession 팩토리 예제 (SqlSession Factory Examples)
 
-이 디렉토리에는 MyBatis의 `SqlSessionFactory`를 빌드하고 `SqlSession`을 얻는 두 가지 주요 방법을 보여주는 예제 코드가 포함되어 있습니다. 두 예제 모두 데이터베이스 연결을 실제로 확인하기 위해 간단한 쿼리를 실행합니다.
+이 디렉토리에는 MyBatis의 `SqlSessionFactory`를 빌드하고 `SqlSession`을 얻는 두 가지 주요 방법과 생명 주기를 다루는 예제 코드들이 포함되어 있습니다. 예제에서는 데이터베이스 연결을 실제로 확인하기 위해 간단한 쿼리를 실행합니다.
 
 ## 1. `BuildSqlSessionWithXML.java` (XML 기반 설정)
 
