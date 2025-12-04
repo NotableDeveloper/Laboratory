@@ -13,7 +13,12 @@ import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
  * 순수 Java 코드를 통해 SqlSessionFactory를 빌드하는 방법을 보여주는 예제입니다.
  * Java 코드로 직접 MyBatis 설정을 구성하면, XML 파일 없이 애플리케이션을 실행할 수 있습니다.
  */
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class BuildSqlSessionWithJava {
+
+    private static final Logger logger = LoggerFactory.getLogger(BuildSqlSessionWithJava.class);
 
     public static void main(String[] args) {
         // SqlSessionFactory는 MyBatis의 핵심 객체로, SqlSession 인스턴스를 생성합니다.
@@ -53,11 +58,10 @@ public class BuildSqlSessionWithJava {
 
             // 설정이 완료된 Configuration 객체를 사용하여 SqlSessionFactory를 빌드합니다.
             sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
-            System.out.println("SqlSessionFactory (Java config) build successful.");
+            logger.info("SqlSessionFactory (Java config) build successful.");
 
         } catch (Exception e) {
-            System.err.println("Error building SqlSessionFactory with Java config");
-            e.printStackTrace();
+            logger.error("Error building SqlSessionFactory with Java config");
             return; // 빌드 실패 시 프로그램 종료
         }
 
@@ -65,7 +69,7 @@ public class BuildSqlSessionWithJava {
         // SqlSession은 데이터베이스에 대한 실제 SQL 실행을 담당합니다.
         // try-with-resources 구문을 사용하여 세션이 자동으로 닫히도록 합니다.
         try (SqlSession session = sqlSessionFactory.openSession()) {
-            System.out.println("SqlSession (Java config) opened successfully. Now testing connection...");
+            logger.info("SqlSession (Java config) opened successfully. Now testing connection...");
 
             // 등록된 매퍼 인터페이스의 구현체를 얻습니다.
             ConnectionTestMapper mapper = session.getMapper(ConnectionTestMapper.class);
@@ -75,13 +79,12 @@ public class BuildSqlSessionWithJava {
             
             // 쿼리 결과 확인
             if (result != null && result == 1) {
-                System.out.println("Database connection test successful. Query returned: " + result);
+                logger.info("Database connection test successful. Query returned: " + result);
             } else {
-                System.err.println("Database connection test failed. Query returned: " + result);
+                logger.error("Database connection test failed. Query returned: " + result);
             }
         } catch (Exception e) {
-            System.err.println("Error with SqlSession (Java config) or database query.");
-            e.printStackTrace();
+            logger.error("Error with SqlSession (Java config) or database query.");
         }
     }
 }
