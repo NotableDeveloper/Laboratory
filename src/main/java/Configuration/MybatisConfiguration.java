@@ -6,6 +6,8 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.ibatis.datasource.unpooled.UnpooledDataSource;
+import org.apache.ibatis.datasource.pooled.PooledDataSource;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -61,6 +63,30 @@ public class MybatisConfiguration {
             logger.info("  ID: {}", config.getEnvironment().getId());
             logger.info("  TransactionManager: {}", config.getEnvironment().getTransactionFactory().getClass().getSimpleName());
             logger.info("  DataSource: {}", config.getEnvironment().getDataSource().getClass().getSimpleName());
+
+            // Log DataSource properties
+            if (config.getEnvironment().getDataSource() instanceof PooledDataSource) {
+                // PooledDataSource extends UnpooledDataSource, so we can cast and access properties directly
+                PooledDataSource pooledDs = (PooledDataSource) config.getEnvironment().getDataSource();
+                logger.info("[DataSource Properties]");
+                logger.info("  Driver: {}", pooledDs.getDriver());
+                logger.info("  URL: {}", pooledDs.getUrl());
+                logger.info("  Username: {}", pooledDs.getUsername());
+                // Password should generally not be logged, but for demonstration, we'll include it.
+                logger.info("  Password: {}", pooledDs.getPassword());
+            } else if (config.getEnvironment().getDataSource() instanceof UnpooledDataSource) {
+                // This block handles pure UnpooledDataSource (if not wrapped by PooledDataSource)
+                UnpooledDataSource ds = (UnpooledDataSource) config.getEnvironment().getDataSource();
+                logger.info("[DataSource Properties]");
+                logger.info("  Driver: {}", ds.getDriver());
+                logger.info("  URL: {}", ds.getUrl());
+                logger.info("  Username: {}", ds.getUsername());
+                // Password should generally not be logged, but for demonstration, we'll include it.
+                logger.info("  Password: {}", ds.getPassword());
+            }
+            else {
+                logger.info("[DataSource Properties] (specific properties not available for this DataSource type)");
+            }
         } else {
             logger.warn("[Environment] is not configured.");
         }
