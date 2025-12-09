@@ -67,3 +67,8 @@ task runSqlSessionLifecycleExample(type: JavaExec) {
     classpath sourceSets.main.runtimeClasspath
     mainClass = 'SqlSession.example.SqlSessionLifecycle'
 }
+
+task runMybatisConfigurationExample(type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    mainClass = 'SqlSession.example.MybatisConfiguration'
+}
