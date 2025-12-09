@@ -34,15 +34,7 @@ gradlew runXmlSqlSessionExample
 gradlew runJavaSqlSessionExample
 ```
 
-## 3. `ConnectionTestMapper.java`
-
-이 인터페이스는 두 예제에서 데이터베이스 연결 상태를 확인하기 위해 사용되는 간단한 MyBatis 매퍼입니다. `@Select("SELECT 1")` 애노테이션을 사용하여 `SELECT 1` 쿼리를 직접 정의합니다.
-
----
-
-**참고:** 이 예제를 실행하려면 MySQL 데이터베이스가 실행 중이어야 하며, `mybatis-config.xml` 또는 `BuildSqlSessionWithJava.java`에 설정된 `sakila` 데이터베이스 및 `simple-user`/`q1w2e3r4!` 계정이 올바르게 구성되어 있어야 합니다.
-
-## 4. SqlSessionFactoryBuilder, SqlSessionFactory, SqlSession 생명 주기 (Lifecycle)
+## 3. SqlSessionFactoryBuilder, SqlSessionFactory, SqlSession 생명 주기 (Lifecycle)
 
 MyBatis의 핵심 컴포넌트인 `SqlSessionFactoryBuilder`, `SqlSessionFactory`, `SqlSession`은 각각 다른 생명 주기와 역할을 가집니다. 이를 이해하는 것은 MyBatis 애플리케이션의 성능 최적화와 올바른 리소스 관리에 중요합니다.
 
@@ -65,11 +57,6 @@ MyBatis의 핵심 컴포넌트인 `SqlSessionFactoryBuilder`, `SqlSessionFactory
 - **주의사항**: `SqlSession`은 스레드에 안전하지 않으므로, 여러 스레드에서 공유해서는 안 됩니다. 또한, 사용 후 반드시 닫지 않으면 데이터베이스 커넥션 누수와 같은 심각한 리소스 문제를 발생시킬 수 있습니다.
 
 ---
-
-### 예제 코드: `SqlSessionLifecycle.java`
-
-`SqlSessionLifecycle.java` 파일은 위에서 설명한 세 가지 컴포넌트의 생명 주기를 실제 코드로 보여주는 예제입니다. 이 파일을 통해 각 객체가 언제 생성되고, 어떻게 사용되며, 언제 소멸되어야 하는지 확인할 수 있습니다.
-
 ### 실행 방법:
 프로젝트 루트 디렉토리에서 다음 Gradle 명령어를 실행합니다:
 ```bash
