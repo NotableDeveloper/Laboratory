@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <conversionRule conversionWord="maskPhone" converterClass="logback_filtering.UserDataConverter"/>
+    <conversionRule conversionWord="maskPhone" converterClass="logback_filtering.filter.UserDataConverter"/>
 
     <!-- Appender with masking for the logback_filtering package -->
     <appender name="MASKING_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
@@ -16,8 +16,8 @@
         </encoder>
     </appender>
 
-    <!-- This logger applies the masking rule only to the logback_filtering package -->
-    <logger name="logback_filtering" level="DEBUG" additivity="false">
+    <!-- This logger applies the masking rule only to the logback_filtering.ClientExample class -->
+    <logger name="logback_filtering.ClientExample" level="DEBUG" additivity="false">
         <appender-ref ref="MASKING_CONSOLE"/>
     </logger>
 
