@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="DynamicSql.mapper.FilmDynamicMapper">
+
+    <!--
+        =====================================================================
+        1. <where> + <if>: 선택적 조건 검색
+        =====================================================================
+        <where> 태그는 내부에 조건이 하나라도 있으면 자동으로 "WHERE" 를 붙이고,
+        첫 번째 조건 앞의 "AND" / "OR" 를 자동으로 제거합니다.
+        <if test="..."> 는 OGNL 표현식이 true 일 때만 SQL 구문에 포함됩니다.
+    -->
+    <select id="searchWithIf"
+            parameterType="DynamicSql.entity.FilmSearchCriteria"
+            resultType="DynamicSql.entity.Film">
+        SELECT film_id, title, description, length, rating, rental_rate
+        FROM film
+        <where>
+            <if test="title != null and title != ''">
+                AND title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="rating != null and rating != ''">
+                AND rating = #{rating}
+            </if>
+            <if test="minLength != null">
+                AND length &gt;= #{minLength}
+            </if>
+            <if test="maxLength != null">
+                AND length &lt;= #{maxLength}
+            </if>
+        </where>
+        ORDER BY film_id
+        LIMIT 10
+    </select>
+
+    <!--
+        =====================================================================
+        2. <choose> + <when> + <otherwise>: 정렬 전략 선택
+        =====================================================================
+        Java의 switch-case 와 같은 구조입니다.
+        <when> 조건 중 처음으로 true 인 것이 선택되고, 모두 false 이면 <otherwise> 가 사용됩니다.
+    -->
+    <select id="searchWithChoose"
+            parameterType="DynamicSql.entity.FilmSearchCriteria"
+            resultType="DynamicSql.entity.Film">
+        SELECT film_id, title, description, length, rating, rental_rate
+        FROM film
+        <where>
+            <if test="rating != null and rating != ''">
+                AND rating = #{rating}
+            </if>
+        </where>
+        ORDER BY
+        <choose>
+            <when test="sortBy == 'title'">
+                title ASC
+            </when>
+            <when test="sortBy == 'length'">
+                length DESC
+            </when>
+            <when test="sortBy == 'rating'">
+                rating ASC
+            </when>
+            <otherwise>
+                film_id ASC
+            </otherwise>
+        </choose>
+        LIMIT 10
+    </select>
+
+    <!--
+        =====================================================================
+        3. <set> + <if>: 부분 업데이트 (Partial Update)
+        =====================================================================
+        <set> 태그는 내부에 포함된 항목들로 SET 절을 구성하며,
+        마지막 불필요한 쉼표(,)를 자동으로 제거합니다.
+        null 인 필드는 <if> 조건에 의해 UPDATE 대상에서 제외됩니다.
+    -->
+    <update id="updatePartial" parameterType="DynamicSql.entity.Film">
+        UPDATE film
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="rentalRate != null">rental_rate = #{rentalRate},</if>
+            <if test="length != null">length = #{length},</if>
+            <if test="rating != null">rating = #{rating},</if>
+        </set>
+        WHERE film_id = #{filmId}
+    </update>
+
+    <!--
+        =====================================================================
+        4. <foreach>: 컬렉션을 IN 절로 변환
+        =====================================================================
+        collection : 파라미터 이름 (@Param("ids") 로 지정)
+        item       : 각 원소를 참조하는 변수명
+        open/close : IN 절 앞뒤에 붙을 문자열
+        separator  : 원소 사이 구분자
+    -->
+    <select id="selectByIds" resultType="DynamicSql.entity.Film">
+        SELECT film_id, title, description, length, rating, rental_rate
+        FROM film
+        WHERE film_id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY film_id
+    </select>
+
+    <!--
+        =====================================================================
+        5. <trim>: 커스텀 prefix/suffix 처리
+        =====================================================================
+        <where> 와 동일한 역할을 하지만, prefix/prefixOverrides/suffix/suffixOverrides
+        를 직접 지정하여 더 세밀하게 제어할 수 있습니다.
+
+        아래 예제는 <where> 태그를 <trim> 으로 직접 구현한 것입니다:
+          prefix="WHERE"          → 내용이 있으면 앞에 "WHERE" 추가
+          prefixOverrides="AND |OR " → 첫 조건 앞의 "AND " 또는 "OR " 제거
+    -->
+    <select id="searchWithTrim"
+            parameterType="DynamicSql.entity.FilmSearchCriteria"
+            resultType="DynamicSql.entity.Film">
+        SELECT film_id, title, description, length, rating, rental_rate
+        FROM film
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="title != null and title != ''">
+                AND title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="rating != null and rating != ''">
+                AND rating = #{rating}
+            </if>
+            <if test="minLength != null">
+                AND length &gt;= #{minLength}
+            </if>
+        </trim>
+        ORDER BY film_id
+        LIMIT 10
+    </select>
+
+</mapper>

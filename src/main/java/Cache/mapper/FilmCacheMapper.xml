@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Cache.mapper.FilmCacheMapper">
+
+    <!--
+        =====================================================================
+        2차 캐시 (Second-Level Cache) 활성화
+        =====================================================================
+        <cache/> 를 선언하면 이 네임스페이스의 모든 SELECT 결과가
+        SqlSession을 넘어서 캐시됩니다.
+
+        기본 설정:
+          - 퇴거 정책 (eviction) : LRU (Least Recently Used)
+          - 플러시 간격 (flushInterval) : 설정 없음 (명시적 flush만)
+          - 참조 수 (size)  : 1024개
+          - 읽기 전용 (readOnly) : false (안전을 위해 직렬화하여 반환)
+
+        주의: SELECT 결과 객체(Film)는 java.io.Serializable 을 구현해야 합니다.
+
+        아래와 같이 속성으로 세부 조정도 가능합니다:
+        <cache
+            eviction="FIFO"
+            flushInterval="60000"
+            size="512"
+            readOnly="true"/>
+    -->
+    <cache/>
+
+    <select id="selectById" parameterType="short" resultType="Cache.entity.Film">
+        SELECT film_id, title, rating, length
+        FROM film
+        WHERE film_id = #{filmId}
+    </select>
+
+    <select id="selectByRating" parameterType="string" resultType="Cache.entity.Film">
+        SELECT film_id, title, rating, length
+        FROM film
+        WHERE rating = #{rating}
+        LIMIT 5
+    </select>
+
+</mapper>

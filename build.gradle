@@ -72,3 +72,42 @@ task runMybatisConfigurationExample(type: JavaExec) {
     classpath sourceSets.main.runtimeClasspath
     mainClass = 'SqlSession.example.MybatisConfiguration'
 }
+
+// === SQL 매핑 예제 (4. SQL Mapping) ===
+task runSqlMappingCrudExample(type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    mainClass = 'SqlMapping.CrudExample'
+}
+
+task runSqlMappingResultMapExample(type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    mainClass = 'SqlMapping.ResultMapExample'
+}
+
+// === 동적 SQL 예제 (5. Dynamic SQL) ===
+task runDynamicSqlExample(type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    mainClass = 'DynamicSql.DynamicSqlExample'
+}
+
+// === 캐시 예제 (6. Cache) ===
+task runFirstLevelCacheExample(type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    mainClass = 'Cache.FirstLevelCacheExample'
+}
+
+task runSecondLevelCacheExample(type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    mainClass = 'Cache.SecondLevelCacheExample'
+}
+
+// === Java API 예제 (7. Java API) ===
+task runAnnotationMappingExample(type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    mainClass = 'JavaApi.AnnotationMappingExample'
+}
+
+task runSqlBuilderExample(type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    mainClass = 'JavaApi.SqlBuilderExample'
+}

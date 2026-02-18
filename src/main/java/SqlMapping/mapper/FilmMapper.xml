@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="SqlMapping.mapper.FilmMapper">
+
+    <!--
+        =====================================================================
+        <sql> 태그: 재사용 가능한 SQL 구문 정의
+        <include refid="..."> 로 참조하여 중복을 줄입니다.
+        =====================================================================
+    -->
+    <sql id="filmBaseColumns">
+        film_id, title, description, release_year, language_id,
+        rental_duration, rental_rate, length, replacement_cost, rating
+    </sql>
+
+    <!--
+        =====================================================================
+        ResultMap 정의
+        =====================================================================
+    -->
+
+    <!-- 기본 Film resultMap: 컬럼명과 프로퍼티명을 명시적으로 매핑 -->
+    <resultMap id="filmMap" type="SqlMapping.entity.Film">
+        <id     column="film_id"          property="filmId"/>
+        <result column="title"            property="title"/>
+        <result column="description"      property="description"/>
+        <result column="release_year"     property="releaseYear"/>
+        <result column="language_id"      property="languageId"/>
+        <result column="rental_duration"  property="rentalDuration"/>
+        <result column="rental_rate"      property="rentalRate"/>
+        <result column="length"           property="length"/>
+        <result column="replacement_cost" property="replacementCost"/>
+        <result column="rating"           property="rating"/>
+    </resultMap>
+
+    <!--
+        <association> resultMap: FilmDetail 안에 Language 객체를 중첩 매핑
+        javaType: 중첩 객체의 Java 타입
+        columnPrefix: 컬럼 충돌 방지를 위해 language 컬럼에 접두사 사용
+    -->
+    <resultMap id="filmDetailMap" type="SqlMapping.entity.FilmDetail">
+        <id     column="film_id"     property="filmId"/>
+        <result column="title"       property="title"/>
+        <result column="description" property="description"/>
+        <result column="length"      property="length"/>
+        <result column="rating"      property="rating"/>
+        <association property="language" javaType="SqlMapping.entity.Language" columnPrefix="lang_">
+            <id     column="language_id" property="languageId"/>
+            <result column="name"        property="name"/>
+        </association>
+    </resultMap>
+
+    <!--
+        <collection> resultMap: ActorWithFilms 안에 List<Film>을 중첩 매핑
+        ofType: 컬렉션 원소의 Java 타입
+    -->
+    <resultMap id="actorWithFilmsMap" type="SqlMapping.entity.ActorWithFilms">
+        <id     column="actor_id"   property="actorId"/>
+        <result column="first_name" property="firstName"/>
+        <result column="last_name"  property="lastName"/>
+        <collection property="films" ofType="SqlMapping.entity.Film">
+            <id     column="film_id" property="filmId"/>
+            <result column="title"   property="title"/>
+            <result column="rating"  property="rating"/>
+            <result column="length"  property="length"/>
+        </collection>
+    </resultMap>
+
+    <!--
+        <discriminator> resultMap: rating 컬럼 값에 따라 다른 Java 타입으로 인스턴스화
+        - G, PG       → FamilyFilm 객체
+        - PG-13, R, NC-17 → RestrictedFilm 객체
+    -->
+    <resultMap id="filmSummaryMap" type="SqlMapping.entity.FilmSummary">
+        <id     column="film_id" property="filmId"/>
+        <result column="title"   property="title"/>
+        <result column="rating"  property="rating"/>
+        <discriminator javaType="String" column="rating">
+            <case value="G"     resultType="SqlMapping.entity.FamilyFilm"/>
+            <case value="PG"    resultType="SqlMapping.entity.FamilyFilm"/>
+            <case value="PG-13" resultType="SqlMapping.entity.RestrictedFilm"/>
+            <case value="R"     resultType="SqlMapping.entity.RestrictedFilm"/>
+            <case value="NC-17" resultType="SqlMapping.entity.RestrictedFilm"/>
+        </discriminator>
+    </resultMap>
+
+    <!--
+        =====================================================================
+        기본 CRUD 구문
+        =====================================================================
+    -->
+
+    <!-- SELECT 단건: <include>로 <sql> 구문 재사용, resultMap으로 명시적 매핑 -->
+    <select id="selectById" parameterType="short" resultMap="filmMap">
+        SELECT
+            <include refid="filmBaseColumns"/>
+        FROM film
+        WHERE film_id = #{filmId}
+    </select>
+
+    <!-- SELECT 전체: <include>로 <sql> 구문 재사용 -->
+    <select id="selectAll" resultMap="filmMap">
+        SELECT
+            <include refid="filmBaseColumns"/>
+        FROM film
+        ORDER BY film_id
+        LIMIT 10
+    </select>
+
+    <!--
+        INSERT: useGeneratedKeys="true" + keyProperty="filmId"
+        → INSERT 후 DB가 생성한 PK를 film.filmId 에 자동으로 반영
+    -->
+    <insert id="insert" parameterType="SqlMapping.entity.Film"
+            useGeneratedKeys="true" keyProperty="filmId">
+        INSERT INTO film (
+            title, description, language_id,
+            rental_duration, rental_rate, length, replacement_cost, rating
+        ) VALUES (
+            #{title}, #{description}, #{languageId},
+            #{rentalDuration}, #{rentalRate}, #{length}, #{replacementCost}, #{rating}
+        )
+    </insert>
+
+    <!-- UPDATE: 전체 필드 업데이트 -->
+    <update id="update" parameterType="SqlMapping.entity.Film">
+        UPDATE film
+        SET title            = #{title},
+            description      = #{description},
+            rental_rate      = #{rentalRate},
+            length           = #{length},
+            rating           = #{rating}
+        WHERE film_id = #{filmId}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete" parameterType="short">
+        DELETE FROM film
+        WHERE film_id = #{filmId}
+    </delete>
+
+    <!--
+        =====================================================================
+        ResultMap 심화 예제
+        =====================================================================
+    -->
+
+    <!--
+        <association> 조회: film + language 조인
+        columnPrefix="lang_" → language 테이블 컬럼에 "lang_" 접두사를 붙여 충돌 방지
+    -->
+    <select id="selectDetailById" parameterType="short" resultMap="filmDetailMap">
+        SELECT f.film_id,
+               f.title,
+               f.description,
+               f.length,
+               f.rating,
+               l.language_id AS lang_language_id,
+               l.name        AS lang_name
+        FROM film f
+                 LEFT JOIN language l ON f.language_id = l.language_id
+        WHERE f.film_id = #{filmId}
+    </select>
+
+    <!--
+        <collection> 조회: actor + film_actor + film 3-way 조인
+        MyBatis가 actor_id 기준으로 결과를 그룹핑하여 films 리스트를 자동 구성
+    -->
+    <select id="selectActorWithFilms" parameterType="short" resultMap="actorWithFilmsMap">
+        SELECT a.actor_id,
+               a.first_name,
+               a.last_name,
+               f.film_id,
+               f.title,
+               f.rating,
+               f.length
+        FROM actor a
+                 LEFT JOIN film_actor fa ON a.actor_id = fa.actor_id
+                 LEFT JOIN film f ON fa.film_id = f.film_id
+        WHERE a.actor_id = #{actorId}
+    </select>
+
+    <!--
+        <discriminator> 단건 조회: rating에 따라 FamilyFilm 또는 RestrictedFilm 반환
+    -->
+    <select id="selectSummaryById" parameterType="short" resultMap="filmSummaryMap">
+        SELECT film_id, title, rating
+        FROM film
+        WHERE film_id = #{filmId}
+    </select>
+
+    <!--
+        <discriminator> 목록 조회: G, PG, R, NC-17 등급이 혼합된 결과
+        MyBatis가 각 행의 rating 값을 보고 적절한 서브클래스 인스턴스를 생성
+    -->
+    <select id="selectMixedRatings" resultMap="filmSummaryMap">
+        SELECT film_id, title, rating
+        FROM film
+        WHERE rating IN ('G', 'PG', 'R', 'NC-17')
+        ORDER BY rating, film_id
+        LIMIT 8
+    </select>
+
+</mapper>
