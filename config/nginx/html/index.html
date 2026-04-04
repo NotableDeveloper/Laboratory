@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMZ - 회원 정보 조회 서비스</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: white;
+            color: black;
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom: 2px solid #000;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .server-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1em;
+            margin-top: 15px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.online {
+            background: #000;
+        }
+
+        .status-indicator.offline {
+            background: #999;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            font-size: 1.5em;
+            color: #000;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
+
+.members-section {
+            margin-top: 30px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #000;
+            color: white;
+            border: 2px solid #000;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: white;
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .members-list {
+            margin-top: 30px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .member-card {
+            background: #f9f9f9;
+            border-left: 4px solid #000;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .member-card h4 {
+            color: #000;
+            margin-bottom: 8px;
+        }
+
+        .member-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 0.9em;
+            color: #333;
+        }
+
+        .member-info p {
+            margin: 5px 0;
+        }
+
+        .member-info strong {
+            color: #000;
+        }
+
+        .status {
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-size: 0.95em;
+            border: 1px solid #000;
+        }
+
+        .status.success {
+            background: #f0f0f0;
+            color: #000;
+            border: 1px solid #000;
+        }
+
+        .status.error {
+            background: #ffcccc;
+            color: #000;
+            border: 1px solid #000;
+        }
+
+        .status.loading {
+            background: #f0f0f0;
+            color: #000;
+            border: 1px solid #000;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ddd;
+            border-top: 2px solid #000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+@media (max-width: 768px) {
+            .member-info {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .button-group {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            input[type="number"] {
+                max-width: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>회원 정보 조회 서비스</h1>
+            <div class="server-status">
+                <span class="status-indicator offline" id="statusIndicator"></span>
+                <span id="statusText">서버 연결 확인 중...</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- 회원 조회 섹션 -->
+            <div class="section">
+                <h2>회원 정보 조회</h2>
+
+                <!-- 버튼 그룹 -->
+                <div class="button-group" style="align-items: center; flex-wrap: nowrap;">
+                    <button onclick="fetchAllMembers()">전체 회원 조회</button>
+                    <input
+                        type="number"
+                        id="memberId"
+                        placeholder="회원 ID"
+                        min="1"
+                        style="padding: 12px 24px; border: 2px solid #000; border-radius: 5px; font-size: 1em; background: white; color: #000; flex: 1; max-width: 200px;"
+                    >
+                    <button onclick="fetchSingleMember()">회원 ID로 조회</button>
+                    <button onclick="clearResults()">결과 초기화</button>
+                </div>
+
+                <!-- 상태 메시지 -->
+                <div id="status"></div>
+
+                <!-- 결과 표시 -->
+                <div class="members-section">
+                    <div id="result"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let healthCheckInterval;
+
+        function showStatus(message, type = 'loading') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `
+                <div class="status ${type}">
+                    ${type === 'loading' ? '<span class="loading-spinner"></span>' : ''}
+                    ${message}
+                </div>
+            `;
+        }
+
+        function updateServerStatus() {
+            const indicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+
+            fetch('/api/members/health')
+                .then(response => {
+                    if (!response.ok) throw new Error('Server error');
+                    return response.json();
+                })
+                .then(data => {
+                    indicator.classList.remove('offline');
+                    indicator.classList.add('online');
+                    statusText.textContent = '서버 연결됨 (' + new Date().toLocaleTimeString() + ')';
+                })
+                .catch(error => {
+                    indicator.classList.remove('online');
+                    indicator.classList.add('offline');
+                    statusText.textContent = '서버 연결 안 됨 (' + new Date().toLocaleTimeString() + ')';
+                });
+        }
+
+        function fetchAllMembers() {
+            showStatus('전체 회원 조회 중...', 'loading');
+            fetch('/api/members')
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        displayMembers(data.data);
+                        showStatus(`✓ ${data.message} (총 ${data.data.length}명)`, 'success');
+                    } else {
+                        showStatus(`✗ ${data.message}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    showStatus(`✗ 오류 발생: ${error.message}`, 'error');
+                });
+        }
+
+        function fetchSingleMember() {
+            const memberId = document.getElementById('memberId').value;
+            if (!memberId) {
+                showStatus('회원 ID를 입력해주세요.', 'error');
+                return;
+            }
+
+            showStatus(`회원 ID ${memberId} 조회 중...`, 'loading');
+            fetch(`/api/members/${memberId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        displayMembers([data.data]);
+                        showStatus(`✓ ${data.message}`, 'success');
+                    } else {
+                        showStatus(`✗ ${data.message}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    showStatus(`✗ 오류 발생: ${error.message}`, 'error');
+                });
+        }
+
+        function displayMembers(members) {
+            const resultDiv = document.getElementById('result');
+
+            if (!members || members.length === 0) {
+                resultDiv.innerHTML = '<p style="color: #999; text-align: center;">조회된 회원이 없습니다.</p>';
+                return;
+            }
+
+            let html = '<div class="members-list">';
+            members.forEach(member => {
+                html += `
+                    <div class="member-card">
+                        <h4>${member.name} (ID: ${member.memberId})</h4>
+                        <div class="member-info">
+                            <p><strong>이메일:</strong> ${member.email}</p>
+                            <p><strong>전화:</strong> ${member.phone}</p>
+                            <p><strong>부서:</strong> ${member.department}</p>
+                            <p><strong>입사일:</strong> ${member.joinDate}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            resultDiv.innerHTML = html;
+        }
+
+        function clearResults() {
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('status').innerHTML = '';
+            document.getElementById('memberId').value = '';
+        }
+
+        // 페이지 로드 시 기본 상태 설정
+        window.onload = function() {
+            // 초기 헬스 체크
+            updateServerStatus();
+
+            // 5초마다 서버 상태 확인
+            healthCheckInterval = setInterval(updateServerStatus, 5000);
+        };
+
+        // 페이지 언로드 시 인터벌 정지
+        window.addEventListener('beforeunload', function() {
+            if (healthCheckInterval) {
+                clearInterval(healthCheckInterval);
+            }
+        });
+
+        // Enter 키로 조회
+        document.addEventListener('DOMContentLoaded', function() {
+            const memberIdInput = document.getElementById('memberId');
+            if (memberIdInput) {
+                memberIdInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        fetchSingleMember();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
