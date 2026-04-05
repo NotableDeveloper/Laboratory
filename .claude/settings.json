@@ -3,7 +3,10 @@
     "allow": [
       "Bash(git init:*)",
       "Bash(git remote:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"DMZ Zone 구축 - Nginx & Spring Boot 초기 구현:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)"
     ]
   }
 }
