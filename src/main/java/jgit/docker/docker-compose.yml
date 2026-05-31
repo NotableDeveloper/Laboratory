@@ -1,0 +1,31 @@
+services:
+  jgit-server:
+    build:
+      context: ../../../../..
+      dockerfile: src/main/java/jgit/docker/Dockerfile
+    container_name: jgit-tcp-server
+    ports:
+      - "9000:9000"
+    environment:
+      - JAVA_OPTS=-Xmx512m -Xms256m
+      - LOG_LEVEL=INFO
+    volumes:
+      # 저장소 데이터를 저장할 볼륨 (선택사항)
+      - jgit-data:/app/data
+    restart: unless-stopped
+    networks:
+      - jgit-network
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo PING | nc -w 1 localhost 9000"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  jgit-data:
+    driver: local
+
+networks:
+  jgit-network:
+    driver: bridge
