@@ -215,6 +215,49 @@ public class GitRepositoryManager {
         }
     }
 
+    public PullResult pull(String repoPath, String remoteName, String branchName) throws GitOperationException {
+        try {
+            FileValidator.validateRepositoryPath(repoPath);
+
+            Repository repository = openRepository(repoPath);
+            Git git = new Git(repository);
+
+            try {
+                String targetBranch = branchName != null && !branchName.isEmpty()
+                    ? branchName
+                    : repository.getBranch();
+
+                var pullResult = git.pull()
+                    .setRemote(remoteName)
+                    .setRebase(false)
+                    .call();
+
+                boolean successful = pullResult.isSuccessful();
+                int mergedCommitCount = 0;
+
+                if (successful && pullResult.getMergeResult() != null) {
+                    mergedCommitCount = pullResult.getMergeResult().getMergedCommits().length;
+                }
+
+                logger.info("Pulled from {} to {} (branch: {}, merged: {}, successful: {})",
+                    remoteName, repoPath, targetBranch, mergedCommitCount, successful);
+
+                return new PullResult(targetBranch, mergedCommitCount, successful);
+
+            } finally {
+                git.close();
+                repository.close();
+            }
+
+        } catch (GitAPIException | IOException e) {
+            throw new GitOperationException(
+                ErrorCode.GIT_ERROR,
+                "Pull failed: " + e.getMessage(),
+                e
+            );
+        }
+    }
+
 
     private String getRelativePath(String repoPath, String filePath) {
         File repoFile = new File(repoPath);
@@ -238,6 +281,30 @@ public class GitRepositoryManager {
 
         public int getRefCount() {
             return refCount;
+        }
+    }
+
+    public static class PullResult {
+        private final String branch;
+        private final int mergedCommitCount;
+        private final boolean successful;
+
+        public PullResult(String branch, int mergedCommitCount, boolean successful) {
+            this.branch = branch;
+            this.mergedCommitCount = mergedCommitCount;
+            this.successful = successful;
+        }
+
+        public String getBranch() {
+            return branch;
+        }
+
+        public int getMergedCommitCount() {
+            return mergedCommitCount;
+        }
+
+        public boolean isSuccessful() {
+            return successful;
         }
     }
 

@@ -1,6 +1,6 @@
 # JGit Repository TCP Server
 
-TCP 패킷을 통해 클라이언트 요청을 입력받을 수 있는 JGit 저장소 애플리케이션 예제입니다.
+Netty와 JGit을 이용하여 TCP 프로토콜을 통해 Git 저장소 명령을 원격에서 실행할 수 있는 서버 애플리케이션입니다.
 
 ## 프로젝트 구조
 
@@ -10,29 +10,61 @@ jgit/
 │   ├── Dockerfile
 │   ├── docker-compose.yml
 │   ├── .dockerignore
-│   └── DOCKER.md
-├── server/              # TCP 서버 구현
-│   ├── TcpServerBootstrap.java
-│   ├── TcpServerHandler.java
-│   └── GitRepositoryTcpServer.java
+│   └── init-script.sh
+├── server/              # TCP 서버 및 명령 처리
+│   ├── TcpServerBootstrap.java      # Netty TCP 서버 초기화
+│   ├── TcpServerHandler.java        # 기존 단순 메시지 핸들러
+│   ├── GitCommandHandler.java       # Git 명령어 처리 핸들러
+│   └── GitRepositoryTcpServer.java  # 메인 진입점
+├── command/             # Git 명령 처리 계층
+│   ├── CommandProcessor.java        # 명령 처리기 추상 클래스
+│   ├── InitProcessor.java           # git init
+│   ├── AddProcessor.java            # git add
+│   ├── CommitProcessor.java         # git commit
+│   ├── StatusProcessor.java         # git status
+│   └── PushProcessor.java           # git push
+├── git/                 # Git 저장소 관리
+│   ├── GitRepositoryManager.java    # JGit을 사용한 저장소 관리
+│   ├── CommitInfo.java              # 커밋 정보 DTO
+│   └── FileValidator.java           # 파일 경로 검증
+├── protocol/            # 통신 프로토콜
+│   ├── RequestMessage.java          # 요청 메시지 파싱
+│   └── ResponseMessage.java         # 응답 메시지 생성
+├── exception/           # 예외 처리
+│   └── GitOperationException.java   # Git 작업 예외
+├── client/              # TCP 클라이언트
+│   ├── git-tcp-client.sh            # Bash 클라이언트 스크립트
+│   └── file.txt
 └── README.md            # 이 문서
 ```
 
-## 구성 요소
+## 핵심 컴포넌트
 
-### TcpServerBootstrap
-- Netty 기반 TCP 서버를 초기화하고 관리하는 컴포넌트
-- 다중 클라이언트 연결을 처리할 수 있는 EventLoop 그룹 운영
-- StringCodec을 사용하여 텍스트 기반 통신 지원
+### 서버 계층 (server/)
+- **TcpServerBootstrap**: Netty 기반 TCP 서버 초기화/관리, EventLoop 그룹 운영
+- **GitCommandHandler**: 파이프(|) 구분 프로토콜로 Git 명령어 처리 및 라우팅
+- **GitRepositoryTcpServer**: 메인 진입점, 포트 설정(기본값: 9000), 우아한 종료 처리
 
-### TcpServerHandler
-- 각 클라이언트 연결에 대한 요청 처리 핸들러
-- 클라이언트 접속/절단 로깅
-- 수신한 메시지 처리 및 응답 전송
+### 명령 처리 계층 (command/)
+CommandProcessor를 상속한 5개의 명령어 처리기:
+- **InitProcessor**: 저장소 초기화 (원격 URL 선택)
+- **AddProcessor**: 파일을 스테이징 영역에 추가
+- **CommitProcessor**: 커밋 생성 (작성자 정보 포함)
+- **StatusProcessor**: 저장소 상태 조회 (브랜치, 커밋 수, dirty 상태)
+- **PushProcessor**: 원격 저장소로 푸시
 
-### GitRepositoryTcpServer
-- 전체 서버 애플리케이션의 진입점
-- 기본 포트: 9000 (명령행 인자로 변경 가능)
+### Git 관리 계층 (git/)
+- **GitRepositoryManager**: JGit API를 사용한 저장소 연산 수행
+  - init/add/commit/status/push 지원
+  - 저장소 경로 유효성 검증
+  - PersonIdent를 통한 작성자 정보 관리
+- **FileValidator**: 보안을 위한 경로 검증 (경로 탈출 방지)
+
+### 프로토콜 (protocol/)
+요청 메시지 포맷: `명령어|파라미터1|파라미터2|...`
+- PING 또는 INIT 또는 COMMIT 등의 명령어
+- 파라미터는 파이프(|)로 구분
+- 응답은 JSON 형식 또는 프로토콜 문자열
 
 ## 로컬 실행 방법
 
@@ -48,60 +80,92 @@ java -cp build/libs/Laboratory.jar jgit.server.GitRepositoryTcpServer 8080
 
 ## 클라이언트 테스트
 
-### netcat을 사용한 테스트
+### 1. netcat을 사용한 테스트
+
+#### PING 요청
 ```bash
-# 서버 연결
-nc localhost 9000
-
-# PING 요청
-PING
-# 응답: PONG
-
-# 일반 메시지
-hello world
-# 응답: RECEIVED: hello world
+echo "PING" | nc localhost 9000
+# 응답 예시: {"status":"success","data":"PONG"}
 ```
 
-### Telnet을 사용한 테스트
+#### 저장소 초기화
+```bash
+echo "INIT|/tmp/test-repo" | nc localhost 9000
+# 응답 예시: {"status":"success","data":"REPO_INITIALIZED:/tmp/test-repo"}
+
+# 원격 URL과 함께 초기화
+echo "INIT|/tmp/test-repo|https://github.com/user/repo.git" | nc localhost 9000
+```
+
+#### 상태 조회
+```bash
+echo "STATUS|/tmp/test-repo" | nc localhost 9000
+# 응답 예시: {"branch":"master","commitCount":0,"dirty":false}
+```
+
+#### 원격 저장소에서 풀
+```bash
+# 기본 원격(origin)에서 풀
+echo "PULL|/tmp/test-repo" | nc localhost 9000
+# 응답 예시: {"status":"success","data":"Merged 2 commit(s) from origin"}
+
+# 특정 원격에서 풀
+echo "PULL|/tmp/test-repo|upstream" | nc localhost 9000
+
+# 특정 브랜치에서 풀
+echo "PULL|/tmp/test-repo|origin|develop" | nc localhost 9000
+```
+
+### 2. git-tcp-client.sh를 사용한 테스트
+
+클라이언트 스크립트를 실행 가능하게 만들고 사용:
+```bash
+chmod +x src/main/java/jgit/client/git-tcp-client.sh
+
+# PING 테스트
+./src/main/java/jgit/client/git-tcp-client.sh PING
+
+# 저장소 초기화
+./src/main/java/jgit/client/git-tcp-client.sh INIT /tmp/test-repo
+
+# 저장소 상태 조회
+./src/main/java/jgit/client/git-tcp-client.sh STATUS /tmp/test-repo
+```
+
+### 3. Telnet을 사용한 대화형 테스트
 ```bash
 telnet localhost 9000
+PING
+INIT|/tmp/test-repo
+STATUS|/tmp/test-repo
+# Ctrl+C로 종료
 ```
 
 ## Docker로 실행
 
-### 빠른 시작
+### 이미지 빌드
 
-1. **이미지 빌드** (프로젝트 루트에서)
+프로젝트 루트에서:
 ```bash
 docker build -f src/main/java/jgit/docker/Dockerfile -t jgit-server:latest .
 ```
 
-2. **컨테이너 실행**
+### 컨테이너 실행
+
 ```bash
+# 기본 포트(9000)로 실행
 docker run -d -p 9000:9000 --name jgit-server jgit-server:latest
-```
 
-3. **테스트**
-```bash
-# PING 테스트
-echo "PING" | nc localhost 9000
-# 응답: PONG
+# 다른 포트로 실행
+docker run -d -p 8080:9000 --name jgit-server jgit-server:latest
 
-# 메시지 테스트
-echo "hello docker" | nc localhost 9000
-# 응답: RECEIVED: hello docker
-```
-
-4. **컨테이너 중지**
-```bash
-docker stop jgit-server
-docker rm jgit-server
+# 리포지토리 디렉터리 마운트 (데이터 영속화)
+docker run -d -p 9000:9000 -v /host/repos:/app/repos --name jgit-server jgit-server:latest
 ```
 
 ### Docker Compose로 실행
 
-docker 디렉터리에서 한 명령으로 서비스를 시작할 수 있습니다.
-
+docker 디렉터리에서:
 ```bash
 cd src/main/java/jgit/docker
 
@@ -111,9 +175,6 @@ docker-compose up -d
 # 상태 확인
 docker-compose ps
 
-# PING 테스트
-echo "PING" | nc localhost 9000
-
 # 로그 확인
 docker-compose logs -f jgit-server
 
@@ -121,54 +182,27 @@ docker-compose logs -f jgit-server
 docker-compose down
 ```
 
-### 테스트 스크립트
-
-전체 테스트를 자동으로 수행하는 스크립트:
+### 테스트
 
 ```bash
-#!/bin/bash
-set -e
+# PING 테스트
+echo "PING" | nc localhost 9000
 
-echo "=== Docker 이미지 빌드 ==="
-docker build -f src/main/java/jgit/docker/Dockerfile -t jgit-server:latest .
+# 저장소 초기화
+echo "INIT|/app/repos/test-repo" | nc localhost 9000
 
-echo "=== 컨테이너 시작 ==="
-docker run -d -p 9000:9000 --name jgit-test jgit-server:latest
-sleep 2
-
-echo "=== PING 테스트 ==="
-(echo "PING"; sleep 0.2) | nc -w 1 localhost 9000
-
-echo "=== 메시지 테스트 ==="
-(echo "test message"; sleep 0.2) | nc -w 1 localhost 9000
-
-echo "=== 빈 메시지 테스트 ==="
-(echo ""; sleep 0.2) | nc -w 1 localhost 9000
-
-echo "=== 컨테이너 로그 ==="
-docker logs jgit-test | tail -10
-
-echo "=== 정리 ==="
-docker stop jgit-test
-docker rm jgit-test
-
-echo "=== 모든 테스트 완료 ==="
+# 저장소 상태 조회
+echo "STATUS|/app/repos/test-repo" | nc localhost 9000
 ```
 
-## 포트 변경
-
-기본 포트 9000을 다른 포트로 변경하려면:
-
-### 로컬 실행
+### 컨테이너 로그 확인
 ```bash
-java -cp build/libs/Laboratory.jar jgit.server.GitRepositoryTcpServer 8080
-nc localhost 8080  # 접속 테스트
+docker logs -f jgit-server
 ```
 
-### Docker 컨테이너
+### 컨테이너 내부 접근
 ```bash
-docker run -d -p 8080:9000 --name jgit-server jgit-server:latest
-echo "PING" | nc localhost 8080
+docker exec -it jgit-server /bin/bash
 ```
 
 ## 문제 해결
@@ -178,30 +212,81 @@ echo "PING" | nc localhost 8080
 # 포트 사용 확인
 lsof -i :9000
 
-# 다른 포트 사용
+# 다른 포트로 실행
+java -cp build/libs/Laboratory.jar jgit.server.GitRepositoryTcpServer 8080
 docker run -d -p 9001:9000 --name jgit-server jgit-server:latest
 ```
 
-### 컨테이너 로그 확인
+### 연결 거부 오류
 ```bash
-docker logs jgit-server
-docker logs -f jgit-server  # 실시간 로그
+# 서버가 실행 중인지 확인
+netstat -an | grep 9000
+
+# 방화벽 확인 (macOS)
+sudo lsof -i :9000
 ```
 
-### 컨테이너 내부 접근
-```bash
-docker exec -it jgit-server /bin/bash
+### 명령어 파싱 오류
+요청 메시지 형식을 확인하세요:
+- 명령어는 대문자 (PING, INIT, STATUS 등)
+- 파라미터는 파이프(|)로 구분
+- 예: `INIT|/tmp/repo` 또는 `STATUS|/tmp/repo`
+
+## 명령어 레퍼런스
+
+### 기본 명령어
+
+| 명령어 | 파라미터 | 설명 |
+|--------|---------|------|
+| PING | - | 서버 연결 확인 |
+| INIT | `<repo-path>` [remoteUrl] | 저장소 초기화 |
+| STATUS | `<repo-path>` | 저장소 상태 조회 |
+| ADD | `<repo-path>` `<file1>` [file2...] | 파일 스테이징 |
+| COMMIT | `<repo-path>` `<author>` `<email>` `<message>` `<file1>` [file2...] | 커밋 생성 |
+| PUSH | `<repo-path>` [remote] | 원격 저장소로 푸시 |
+| PULL | `<repo-path>` [remote] [branch] | 원격 저장소에서 풀 |
+
+### 응답 형식
+
+성공:
+```json
+{"status":"success","data":"..."}
 ```
 
-## 향후 확장 기능
+실패:
+```json
+{"status":"error","errorCode":"INVALID_PARAMS","message":"..."}
+```
 
-- JGit을 사용한 저장소 명령어 처리 (clone, log, status 등)
-- 요청/응답 프로토콜 정의
-- 저장소 관리 기능 구현
-- 인증 및 권한 관리
-- 멀티 스레드 요청 처리 최적화
+## 현재 구현 상태
 
-## 참고 문서
+✅ **완료된 기능**
+- Netty 기반 TCP 서버
+- 파이프(|) 구분 프로토콜 파싱
+- PING/PONG 프로토콜
+- INIT: 저장소 초기화 (원격 URL 선택)
+- ADD: 파일 스테이징
+- COMMIT: 커밋 생성 (작성자 정보)
+- STATUS: 저장소 상태 조회
+- PUSH: 원격 저장소로 푸시
+- PULL: 원격 저장소에서 풀 (기본/지정 원격, 브랜치 선택)
+- 경로 검증 및 보안 처리
+- Docker 컨테이너화
+- Bash 클라이언트 스크립트
 
-- [Docker 배포 가이드](docker/DOCKER.md)
-- [build.gradle](../../build.gradle)
+🔄 **향후 확장 기능**
+- LOG: 커밋 히스토리 조회
+- CLONE: 저장소 클론
+- CHECKOUT: 브랜치 변경
+- DIFF: 파일 변경사항 확인
+- FETCH: 원격 저장소에서 가져오기
+- 멀티 사용자 인증 및 권한 관리
+- WebSocket 지원
+- 대용량 파일 전송 최적화
+- 병합 충돌 해결
+
+## 참고 자료
+
+- JGit API 문서: https://www.eclipse.org/jgit/
+- Netty 문서: https://netty.io/
+- [프로젝트 빌드 설정](../../build.gradle)

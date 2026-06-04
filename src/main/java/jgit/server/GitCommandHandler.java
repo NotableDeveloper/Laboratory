@@ -6,6 +6,7 @@ import jgit.command.CommandProcessor;
 import jgit.command.AddProcessor;
 import jgit.command.CommitProcessor;
 import jgit.command.InitProcessor;
+import jgit.command.PullProcessor;
 import jgit.command.PushProcessor;
 import jgit.command.StatusProcessor;
 import jgit.exception.GitOperationException;
@@ -29,6 +30,7 @@ public class GitCommandHandler extends SimpleChannelInboundHandler<String> {
         this.processors.add(new CommitProcessor(gitManager));
         this.processors.add(new StatusProcessor(gitManager));
         this.processors.add(new PushProcessor(gitManager));
+        this.processors.add(new PullProcessor(gitManager));
     }
 
     @Override
