@@ -15,10 +15,6 @@ show_help() {
 
 명령어 목록:
 
-  PING
-    서버 연결 상태를 확인합니다.
-    사용법: ./git-tcp-client.sh PING
-
   INIT <repo-path> [remote-url]
     새로운 Git 저장소를 초기화합니다.
     - repo-path: 저장소 경로 (필수)
@@ -81,7 +77,7 @@ show_help() {
   GIT_TCP_PORT   서버 포트 (기본값: 9000)
 
 사용 예:
-  GIT_TCP_HOST=192.168.1.100 GIT_TCP_PORT=8080 ./git-tcp-client.sh PING
+  GIT_TCP_HOST=192.168.1.100 GIT_TCP_PORT=8080 ./git-tcp-client.sh INIT /app/data/repo
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -91,7 +87,7 @@ show_help() {
   실패: ERROR|<에러코드>|<에러메시지>
 
 예:
-  SUCCESS|PONG
+  SUCCESS|REPO_INITIALIZED|/app/data/my-repo
   SUCCESS|REPO_INITIALIZED|/app/data/my-repo
   ERROR|INVALID_PARAMS|Repository path is required
 

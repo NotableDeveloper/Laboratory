@@ -52,10 +52,6 @@ public class GitCommandHandler extends SimpleChannelInboundHandler<String> {
     }
 
     private ResponseMessage processCommand(RequestMessage request) throws GitOperationException {
-        if ("PING".equalsIgnoreCase(request.getCommand())) {
-            return ResponseMessage.success("PONG");
-        }
-
         for (CommandProcessor processor : processors) {
             if (processor.supports(request.getCommand())) {
                 return processor.process(request);

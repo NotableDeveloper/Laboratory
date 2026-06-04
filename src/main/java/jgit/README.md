@@ -65,7 +65,7 @@ CommandProcessor를 상속한 6개의 명령어 처리기:
 
 ### 프로토콜 (protocol/)
 요청 메시지 포맷: `명령어|파라미터1|파라미터2|...`
-- PING 또는 INIT 또는 COMMIT 등의 명령어
+- INIT, ADD, COMMIT, STATUS, PUSH, PULL 등의 명령어
 - 파라미터는 파이프(|)로 구분
 - 응답은 JSON 형식 또는 프로토콜 문자열
 
@@ -84,12 +84,6 @@ java -cp build/libs/Laboratory.jar jgit.server.GitRepositoryTcpServer 8080
 ## 클라이언트 테스트
 
 ### 1. netcat을 사용한 테스트
-
-#### PING 요청
-```bash
-echo "PING" | nc localhost 9000
-# 응답 예시: {"status":"success","data":"PONG"}
-```
 
 #### 저장소 초기화
 ```bash
@@ -188,9 +182,6 @@ docker-compose down
 ### 테스트
 
 ```bash
-# PING 테스트
-echo "PING" | nc localhost 9000
-
 # 저장소 초기화
 echo "INIT|/app/repos/test-repo" | nc localhost 9000
 
@@ -241,7 +232,6 @@ sudo lsof -i :9000
 
 | 명령어 | 파라미터 | 설명 |
 |--------|---------|------|
-| PING | - | 서버 연결 확인 |
 | INIT | `<repo-path>` [remoteUrl] | 저장소 초기화 |
 | STATUS | `<repo-path>` | 저장소 상태 조회 |
 | ADD | `<repo-path>` `<file1>` [file2...] | 파일 스테이징 |
