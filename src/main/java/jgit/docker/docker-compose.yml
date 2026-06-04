@@ -10,8 +10,8 @@ services:
       - JAVA_OPTS=-Xmx512m -Xms256m
       - LOG_LEVEL=INFO
     volumes:
-      # 저장소 데이터를 저장할 볼륨 (선택사항)
-      - jgit-data:/app/data
+      # 호스트 머신의 jgit/storage에 저장소 데이터 저장
+      - /Users/seongjin/workspaces/Study/Laboratory/src/main/java/jgit/storage:/app/data
     restart: unless-stopped
     networks:
       - jgit-network
@@ -21,10 +21,6 @@ services:
       timeout: 3s
       retries: 3
       start_period: 10s
-
-volumes:
-  jgit-data:
-    driver: local
 
 networks:
   jgit-network:
