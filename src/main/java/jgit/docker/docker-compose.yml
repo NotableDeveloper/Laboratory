@@ -16,7 +16,7 @@ services:
     networks:
       - jgit-network
     healthcheck:
-      test: ["CMD", "sh", "-c", "echo PING | nc -w 1 localhost 9000"]
+      test: ["CMD", "nc", "-z", "localhost", "9000"]
       interval: 30s
       timeout: 3s
       retries: 3

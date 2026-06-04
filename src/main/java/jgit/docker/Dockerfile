@@ -20,7 +20,7 @@ EXPOSE 9000
 
 # 헬스체크
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD echo "PING" | nc -w 1 localhost 9000 || exit 1
+  CMD nc -z localhost 9000 || exit 1
 
 # 애플리케이션 실행
 ENTRYPOINT ["java", "-jar", "app.jar"]

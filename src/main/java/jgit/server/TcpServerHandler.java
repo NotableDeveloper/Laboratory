@@ -39,12 +39,6 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<String> {
             return "ERROR: Empty request";
         }
 
-        String trimmed = request.trim();
-
-        if (trimmed.startsWith("PING")) {
-            return "PONG";
-        }
-
-        return "RECEIVED: " + trimmed;
+        return "RECEIVED: " + request.trim();
     }
 }

@@ -119,9 +119,6 @@ echo "PULL|/tmp/test-repo|origin|develop" | nc localhost 9000
 ```bash
 chmod +x src/main/java/jgit/client/git-tcp-client.sh
 
-# PING 테스트
-./src/main/java/jgit/client/git-tcp-client.sh PING
-
 # 저장소 초기화
 ./src/main/java/jgit/client/git-tcp-client.sh INIT /tmp/test-repo
 
@@ -132,7 +129,6 @@ chmod +x src/main/java/jgit/client/git-tcp-client.sh
 ### 3. Telnet을 사용한 대화형 테스트
 ```bash
 telnet localhost 9000
-PING
 INIT|/tmp/test-repo
 STATUS|/tmp/test-repo
 # Ctrl+C로 종료
@@ -222,7 +218,7 @@ sudo lsof -i :9000
 
 ### 명령어 파싱 오류
 요청 메시지 형식을 확인하세요:
-- 명령어는 대문자 (PING, INIT, STATUS 등)
+- 명령어는 대문자 (INIT, STATUS, ADD, COMMIT, PUSH, PULL)
 - 파라미터는 파이프(|)로 구분
 - 예: `INIT|/tmp/repo` 또는 `STATUS|/tmp/repo`
 
@@ -230,14 +226,14 @@ sudo lsof -i :9000
 
 ### 기본 명령어
 
-| 명령어 | 파라미터 | 설명 |
-|--------|---------|------|
-| INIT | `<repo-path>` [remoteUrl] | 저장소 초기화 |
-| STATUS | `<repo-path>` | 저장소 상태 조회 |
-| ADD | `<repo-path>` `<file1>` [file2...] | 파일 스테이징 |
+| 명령어 | 파라미터                                                                | 설명 |
+|--------|---------------------------------------------------------------------|------|
+| INIT | `<repo-path>` `<remoteUrl>`                                          | 저장소 초기화 |
+| STATUS | `<repo-path>`                                                       | 저장소 상태 조회 |
+| ADD | `<repo-path>` `<file1>` `<file2...>`                                | 파일 스테이징 |
 | COMMIT | `<repo-path>` `<author>` `<email>` `<message>` `<file1>` [file2...] | 커밋 생성 |
-| PUSH | `<repo-path>` [remote] | 원격 저장소로 푸시 |
-| PULL | `<repo-path>` [remote] [branch] | 원격 저장소에서 풀 |
+| PUSH | `<repo-path>` [remote]                                              | 원격 저장소로 푸시 |
+| PULL | `<repo-path>` [remote] [branch]                                     | 원격 저장소에서 풀 |
 
 ### 응답 형식
 
