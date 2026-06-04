@@ -1,11 +1,5 @@
 plugins {
     id 'java'
-    id 'application'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
-}
-
-application {
-    mainClassName = 'jgit.server.GitRepositoryTcpServer'
 }
 
 group = 'study'
@@ -44,8 +38,6 @@ dependencies {
     // Netty
     implementation 'io.netty:netty-all:4.1.107.Final'
 
-    // JGit
-    implementation 'org.eclipse.jgit:org.eclipse.jgit:5.13.3.202401111512-r'
 }
 
 test {
@@ -56,9 +48,3 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-shadowJar {
-    archiveFileName = 'Laboratory.jar'
-    manifest {
-        attributes 'Main-Class': 'jgit.server.GitRepositoryTcpServer'
-    }
-}
