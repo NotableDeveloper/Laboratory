@@ -42,7 +42,7 @@ public class TcpServerBootstrap {
                             ch.pipeline()
                                     .addLast(new StringDecoder(CharsetUtil.UTF_8))
                                     .addLast(new StringEncoder(CharsetUtil.UTF_8))
-                                    .addLast(new TcpServerHandler());
+                                    .addLast(new GitCommandHandler());
                         }
                     });
 
