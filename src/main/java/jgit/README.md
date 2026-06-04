@@ -22,7 +22,8 @@ jgit/
 │   ├── AddProcessor.java            # git add
 │   ├── CommitProcessor.java         # git commit
 │   ├── StatusProcessor.java         # git status
-│   └── PushProcessor.java           # git push
+│   ├── PushProcessor.java           # git push
+│   └── PullProcessor.java           # git pull
 ├── git/                 # Git 저장소 관리
 │   ├── GitRepositoryManager.java    # JGit을 사용한 저장소 관리
 │   ├── CommitInfo.java              # 커밋 정보 DTO
@@ -46,18 +47,20 @@ jgit/
 - **GitRepositoryTcpServer**: 메인 진입점, 포트 설정(기본값: 9000), 우아한 종료 처리
 
 ### 명령 처리 계층 (command/)
-CommandProcessor를 상속한 5개의 명령어 처리기:
+CommandProcessor를 상속한 6개의 명령어 처리기:
 - **InitProcessor**: 저장소 초기화 (원격 URL 선택)
 - **AddProcessor**: 파일을 스테이징 영역에 추가
 - **CommitProcessor**: 커밋 생성 (작성자 정보 포함)
 - **StatusProcessor**: 저장소 상태 조회 (브랜치, 커밋 수, dirty 상태)
 - **PushProcessor**: 원격 저장소로 푸시
+- **PullProcessor**: 원격 저장소에서 풀 (기본/지정 원격, 선택 브랜치)
 
 ### Git 관리 계층 (git/)
 - **GitRepositoryManager**: JGit API를 사용한 저장소 연산 수행
-  - init/add/commit/status/push 지원
+  - init/add/commit/status/push/pull 지원
   - 저장소 경로 유효성 검증
   - PersonIdent를 통한 작성자 정보 관리
+  - 병합 결과 추적
 - **FileValidator**: 보안을 위한 경로 검증 (경로 탈출 방지)
 
 ### 프로토콜 (protocol/)
@@ -257,36 +260,3 @@ sudo lsof -i :9000
 ```json
 {"status":"error","errorCode":"INVALID_PARAMS","message":"..."}
 ```
-
-## 현재 구현 상태
-
-✅ **완료된 기능**
-- Netty 기반 TCP 서버
-- 파이프(|) 구분 프로토콜 파싱
-- PING/PONG 프로토콜
-- INIT: 저장소 초기화 (원격 URL 선택)
-- ADD: 파일 스테이징
-- COMMIT: 커밋 생성 (작성자 정보)
-- STATUS: 저장소 상태 조회
-- PUSH: 원격 저장소로 푸시
-- PULL: 원격 저장소에서 풀 (기본/지정 원격, 브랜치 선택)
-- 경로 검증 및 보안 처리
-- Docker 컨테이너화
-- Bash 클라이언트 스크립트
-
-🔄 **향후 확장 기능**
-- LOG: 커밋 히스토리 조회
-- CLONE: 저장소 클론
-- CHECKOUT: 브랜치 변경
-- DIFF: 파일 변경사항 확인
-- FETCH: 원격 저장소에서 가져오기
-- 멀티 사용자 인증 및 권한 관리
-- WebSocket 지원
-- 대용량 파일 전송 최적화
-- 병합 충돌 해결
-
-## 참고 자료
-
-- JGit API 문서: https://www.eclipse.org/jgit/
-- Netty 문서: https://netty.io/
-- [프로젝트 빌드 설정](../../build.gradle)
