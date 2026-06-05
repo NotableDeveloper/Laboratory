@@ -100,51 +100,48 @@ Commands:
     Example:
       ./git-tcp-client.sh INIT /app/data/my-repo
 
-  ADD <repo-path> <file1> [file2...]
+  ADD <file1> [file2...]
     Add files to the staging area (git add).
-    - repo-path: Repository path (required)
+    Repository path is read from config file (.git-tcp-config).
     - file1, file2...: File paths to add (required, multiple allowed)
     Example:
-      ./git-tcp-client.sh ADD /app/data/my-repo file.txt
-      ./git-tcp-client.sh ADD /app/data/my-repo file1.txt file2.txt file3.txt
+      ./git-tcp-client.sh ADD file.txt
+      ./git-tcp-client.sh ADD file1.txt file2.txt file3.txt
 
-  COMMIT <repo-path> <author> <email> <message> <file1> [file2...]
+  COMMIT <message> <file1> [file2...]
     Commit staged files (git commit).
-    - repo-path: Repository path (required)
-    - author: Author name (required)
-    - email: Author email (required)
+    Repository path and author info are automatically read from config file.
     - message: Commit message (required)
     - file1, file2...: File paths to commit (required, multiple allowed)
     Example:
-      ./git-tcp-client.sh COMMIT /app/data/my-repo John 'john@example.com' 'Initial commit' file.txt
-      ./git-tcp-client.sh COMMIT /app/data/my-repo Alice 'alice@example.com' 'Add features' file1.txt file2.txt
+      ./git-tcp-client.sh COMMIT 'Initial commit' file.txt
+      ./git-tcp-client.sh COMMIT 'Add features' file1.txt file2.txt
 
-  STATUS <repo-path>
+  STATUS
     Show repository status (git status).
-    - repo-path: Repository path (required)
+    Repository path is read from config file (.git-tcp-config).
     Return: Current branch, commit count, working tree status
     Example:
-      ./git-tcp-client.sh STATUS /app/data/my-repo
+      ./git-tcp-client.sh STATUS
 
-  PUSH <repo-path> [remote]
+  PUSH [--remote <name>]
     Push commits to remote repository (git push).
-    - repo-path: Repository path (required)
-    - remote: Remote name (optional, default: origin)
+    Repository path and default remote are read from config file.
+    - --remote: Remote name (optional, overrides default remote)
     Example:
-      ./git-tcp-client.sh PUSH /app/data/my-repo
-      ./git-tcp-client.sh PUSH /app/data/my-repo origin
-      ./git-tcp-client.sh PUSH /app/data/my-repo upstream
+      ./git-tcp-client.sh PUSH
+      ./git-tcp-client.sh PUSH --remote origin
+      ./git-tcp-client.sh PUSH --remote upstream
 
-  PULL <repo-path> [remote] [branch]
+  PULL [--remote <name>] [--branch <name>]
     Pull and merge changes from remote repository (git pull).
-    - repo-path: Repository path (required)
-    - remote: Remote name (optional, default: origin)
-    - branch: Branch name (optional, default: current branch)
+    Repository path and default remote are read from config file.
+    - --remote: Remote name (optional, overrides default remote)
+    - --branch: Branch name (optional, default: current branch)
     Example:
-      ./git-tcp-client.sh PULL /app/data/my-repo
-      ./git-tcp-client.sh PULL /app/data/my-repo origin
-      ./git-tcp-client.sh PULL /app/data/my-repo origin main
-      ./git-tcp-client.sh PULL /app/data/my-repo upstream develop
+      ./git-tcp-client.sh PULL
+      ./git-tcp-client.sh PULL --remote origin
+      ./git-tcp-client.sh PULL --remote origin --branch main
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -230,68 +227,84 @@ case "$COMMAND" in
         ;;
 
     ADD)
-        if [ $# -lt 2 ]; then
-            echo "ERROR: repo-path and file(s) are required"
+        if [ $# -lt 1 ]; then
+            echo "ERROR: file(s) are required"
             exit 1
         fi
 
-        repo_path="$1"
-        shift
+        load_config "$REPO_PATH"
 
-        msg="ADD|$repo_path|$(IFS='|'; echo "$*")"
+        msg="ADD|$REPO_PATH|$(IFS='|'; echo "$*")"
         send_command "$msg"
         ;;
 
     COMMIT)
-        if [ $# -lt 4 ]; then
-            echo "ERROR: repo-path, author, email, message, and file(s) are required"
+        if [ $# -lt 2 ]; then
+            echo "ERROR: message and file(s) are required"
             exit 1
         fi
 
-        repo_path="$1"
-        author="$2"
-        email="$3"
-        message="$4"
-        shift 4
+        message="$1"
+        shift
 
-        msg="COMMIT|$repo_path|$author|$email|$message|$(IFS='|'; echo "$*")"
+        load_config "$REPO_PATH"
+
+        msg="COMMIT|$REPO_PATH|$AUTHOR|$EMAIL|$message|$(IFS='|'; echo "$*")"
         send_command "$msg"
         ;;
 
     STATUS)
-        if [ $# -lt 1 ]; then
-            echo "ERROR: repo-path is required"
-            exit 1
-        fi
+        load_config "$REPO_PATH"
 
-        msg="STATUS|$1"
+        msg="STATUS|$REPO_PATH"
         send_command "$msg"
         ;;
 
     PUSH)
-        if [ $# -lt 1 ]; then
-            echo "ERROR: repo-path is required"
-            exit 1
-        fi
+        remote="$DEFAULT_REMOTE"
+        while [ $# -gt 0 ]; do
+            case "$1" in
+                --remote)
+                    remote="$2"
+                    shift 2
+                    ;;
+                *)
+                    echo "ERROR: Unknown option $1"
+                    exit 1
+                    ;;
+            esac
+        done
 
-        repo_path="$1"
-        remote="${2:-origin}"
+        load_config "$REPO_PATH"
 
-        msg="PUSH|$repo_path|$remote"
+        msg="PUSH|$REPO_PATH|$remote"
         send_command "$msg"
         ;;
 
     PULL)
-        if [ $# -lt 1 ]; then
-            echo "ERROR: repo-path is required"
-            exit 1
-        fi
+        remote="$DEFAULT_REMOTE"
+        branch=""
 
-        repo_path="$1"
-        remote="${2:-origin}"
-        branch="${3:-}"
+        while [ $# -gt 0 ]; do
+            case "$1" in
+                --remote)
+                    remote="$2"
+                    shift 2
+                    ;;
+                --branch)
+                    branch="$2"
+                    shift 2
+                    ;;
+                *)
+                    echo "ERROR: Unknown option $1"
+                    exit 1
+                    ;;
+            esac
+        done
 
-        msg="PULL|$repo_path|$remote"
+        load_config "$REPO_PATH"
+
+        msg="PULL|$REPO_PATH|$remote"
         if [ -n "$branch" ]; then
             msg="$msg|$branch"
         fi
