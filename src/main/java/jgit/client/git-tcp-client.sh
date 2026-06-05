@@ -6,64 +6,62 @@ PORT="${GIT_TCP_PORT:-9000}"
 show_help() {
     cat <<'HELP'
 ╔═══════════════════════════════════════════════════════════════╗
-║           Git TCP Client - Git 저장소 원격 관리               ║
+║           Git TCP Client - Remote Git Repository Manager      ║
 ╚═══════════════════════════════════════════════════════════════╝
 
-사용법: ./git-tcp-client.sh <command> [parameters...]
+Usage: ./git-tcp-client.sh <command> [parameters...]
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-명령어 목록:
+Commands:
 
-  INIT <repo-path> [remote-url]
-    새로운 Git 저장소를 초기화합니다.
-    - repo-path: 저장소 경로 (필수)
-    - remote-url: 원격 저장소 URL (선택, 기본값 없음)
-    예제:
+  INIT <repo-path>
+    Initialize a new Git repository and configure settings interactively.
+    - repo-path: Repository path (required)
+    Example:
       ./git-tcp-client.sh INIT /app/data/my-repo
-      ./git-tcp-client.sh INIT /app/data/my-repo https://github.com/user/repo.git
 
   ADD <repo-path> <file1> [file2...]
-    파일들을 스테이징 영역에 추가합니다 (git add).
-    - repo-path: 저장소 경로 (필수)
-    - file1, file2...: 추가할 파일 경로들 (필수, 여러 개 가능)
-    예제:
+    Add files to the staging area (git add).
+    - repo-path: Repository path (required)
+    - file1, file2...: File paths to add (required, multiple allowed)
+    Example:
       ./git-tcp-client.sh ADD /app/data/my-repo file.txt
       ./git-tcp-client.sh ADD /app/data/my-repo file1.txt file2.txt file3.txt
 
   COMMIT <repo-path> <author> <email> <message> <file1> [file2...]
-    스테이징된 파일들을 커밋합니다 (git commit).
-    - repo-path: 저장소 경로 (필수)
-    - author: 작성자 이름 (필수)
-    - email: 작성자 이메일 (필수)
-    - message: 커밋 메시지 (필수)
-    - file1, file2...: 커밋할 파일 경로들 (필수, 여러 개 가능)
-    예제:
+    Commit staged files (git commit).
+    - repo-path: Repository path (required)
+    - author: Author name (required)
+    - email: Author email (required)
+    - message: Commit message (required)
+    - file1, file2...: File paths to commit (required, multiple allowed)
+    Example:
       ./git-tcp-client.sh COMMIT /app/data/my-repo John 'john@example.com' 'Initial commit' file.txt
       ./git-tcp-client.sh COMMIT /app/data/my-repo Alice 'alice@example.com' 'Add features' file1.txt file2.txt
 
   STATUS <repo-path>
-    저장소의 현재 상태를 조회합니다 (git status).
-    - repo-path: 저장소 경로 (필수)
-    반환값: 현재 브랜치, 커밋 수, 작업 트리 상태
-    예제:
+    Show repository status (git status).
+    - repo-path: Repository path (required)
+    Return: Current branch, commit count, working tree status
+    Example:
       ./git-tcp-client.sh STATUS /app/data/my-repo
 
   PUSH <repo-path> [remote]
-    로컬 저장소의 커밋을 원격 저장소로 푸시합니다 (git push).
-    - repo-path: 저장소 경로 (필수)
-    - remote: 원격 저장소 이름 (선택, 기본값: origin)
-    예제:
+    Push commits to remote repository (git push).
+    - repo-path: Repository path (required)
+    - remote: Remote name (optional, default: origin)
+    Example:
       ./git-tcp-client.sh PUSH /app/data/my-repo
       ./git-tcp-client.sh PUSH /app/data/my-repo origin
       ./git-tcp-client.sh PUSH /app/data/my-repo upstream
 
   PULL <repo-path> [remote] [branch]
-    원격 저장소의 변경사항을 가져와 병합합니다 (git pull).
-    - repo-path: 저장소 경로 (필수)
-    - remote: 원격 저장소 이름 (선택, 기본값: origin)
-    - branch: 브랜치 이름 (선택, 기본값: 현재 브랜치)
-    예제:
+    Pull and merge changes from remote repository (git pull).
+    - repo-path: Repository path (required)
+    - remote: Remote name (optional, default: origin)
+    - branch: Branch name (optional, default: current branch)
+    Example:
       ./git-tcp-client.sh PULL /app/data/my-repo
       ./git-tcp-client.sh PULL /app/data/my-repo origin
       ./git-tcp-client.sh PULL /app/data/my-repo origin main
@@ -71,23 +69,22 @@ show_help() {
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-환경 변수:
+Environment Variables:
 
-  GIT_TCP_HOST   서버 호스트 (기본값: localhost)
-  GIT_TCP_PORT   서버 포트 (기본값: 9000)
+  GIT_TCP_HOST   Server host (default: localhost)
+  GIT_TCP_PORT   Server port (default: 9000)
 
-사용 예:
+Example:
   GIT_TCP_HOST=192.168.1.100 GIT_TCP_PORT=8080 ./git-tcp-client.sh INIT /app/data/repo
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-응답 형식:
+Response Format:
 
-  성공: SUCCESS|<명령어>|<데이터>
-  실패: ERROR|<에러코드>|<에러메시지>
+  Success: SUCCESS|<command>|<data>
+  Error: ERROR|<error-code>|<error-message>
 
-예:
-  SUCCESS|REPO_INITIALIZED|/app/data/my-repo
+Example:
   SUCCESS|REPO_INITIALIZED|/app/data/my-repo
   ERROR|INVALID_PARAMS|Repository path is required
 
@@ -100,19 +97,115 @@ if [ $# -eq 0 ]; then
     exit 0
 fi
 
-# 파라미터를 파이프로 구분된 문자열로 변환
-cmd=$(IFS='|'; echo "$*")
+COMMAND="$1"
+shift
 
-# 서버에 명령어 전송
-exec 3<>/dev/tcp/$HOST/$PORT 2>/dev/null
-if [ $? -ne 0 ]; then
-    echo "ERROR: Cannot connect to $HOST:$PORT"
-    exit 1
-fi
+send_command() {
+    local msg="$1"
+    exec 3<>/dev/tcp/$HOST/$PORT 2>/dev/null
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Cannot connect to $HOST:$PORT"
+        exit 1
+    fi
 
-echo "$cmd" >&3
-timeout 2 cat <&3
-exit_code=$?
-exec 3>&-
+    echo "$msg" >&3
+    timeout 2 cat <&3
+    exit_code=$?
+    exec 3>&-
 
-exit $exit_code
+    exit $exit_code
+}
+
+case "$COMMAND" in
+    INIT)
+        if [ $# -lt 1 ]; then
+            echo "ERROR: repo-path is required"
+            exit 1
+        fi
+
+        repo_path="$1"
+
+        msg="INIT|$repo_path"
+        if [ $# -gt 1 ]; then
+            msg="$msg|$2"
+        fi
+
+        send_command "$msg"
+        ;;
+
+    ADD)
+        if [ $# -lt 2 ]; then
+            echo "ERROR: repo-path and file(s) are required"
+            exit 1
+        fi
+
+        repo_path="$1"
+        shift
+
+        msg="ADD|$repo_path|$(IFS='|'; echo "$*")"
+        send_command "$msg"
+        ;;
+
+    COMMIT)
+        if [ $# -lt 4 ]; then
+            echo "ERROR: repo-path, author, email, message, and file(s) are required"
+            exit 1
+        fi
+
+        repo_path="$1"
+        author="$2"
+        email="$3"
+        message="$4"
+        shift 4
+
+        msg="COMMIT|$repo_path|$author|$email|$message|$(IFS='|'; echo "$*")"
+        send_command "$msg"
+        ;;
+
+    STATUS)
+        if [ $# -lt 1 ]; then
+            echo "ERROR: repo-path is required"
+            exit 1
+        fi
+
+        msg="STATUS|$1"
+        send_command "$msg"
+        ;;
+
+    PUSH)
+        if [ $# -lt 1 ]; then
+            echo "ERROR: repo-path is required"
+            exit 1
+        fi
+
+        repo_path="$1"
+        remote="${2:-origin}"
+
+        msg="PUSH|$repo_path|$remote"
+        send_command "$msg"
+        ;;
+
+    PULL)
+        if [ $# -lt 1 ]; then
+            echo "ERROR: repo-path is required"
+            exit 1
+        fi
+
+        repo_path="$1"
+        remote="${2:-origin}"
+        branch="${3:-}"
+
+        msg="PULL|$repo_path|$remote"
+        if [ -n "$branch" ]; then
+            msg="$msg|$branch"
+        fi
+
+        send_command "$msg"
+        ;;
+
+    *)
+        echo "ERROR: Unknown command $COMMAND"
+        show_help
+        exit 1
+        ;;
+esac
