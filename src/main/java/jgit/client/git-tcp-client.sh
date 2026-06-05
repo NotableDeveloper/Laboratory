@@ -100,14 +100,6 @@ Commands:
     Example:
       ./git-tcp-client.sh INIT /app/data/my-repo
 
-  ADD <file1> [file2...]
-    Add files to the staging area (git add).
-    Repository path is read from config file (.git-tcp-config).
-    - file1, file2...: File paths to add (required, multiple allowed)
-    Example:
-      ./git-tcp-client.sh ADD file.txt
-      ./git-tcp-client.sh ADD file1.txt file2.txt file3.txt
-
   COMMIT <message> <file1> [file2...]
     Commit staged files (git commit).
     Repository path and author info are automatically read from config file.
@@ -223,18 +215,6 @@ case "$COMMAND" in
             msg="$msg|$REMOTE_URL"
         fi
 
-        send_command "$msg"
-        ;;
-
-    ADD)
-        if [ $# -lt 1 ]; then
-            echo "ERROR: file(s) are required"
-            exit 1
-        fi
-
-        load_config "$REPO_PATH"
-
-        msg="ADD|$REPO_PATH|$(IFS='|'; echo "$*")"
         send_command "$msg"
         ;;
 
