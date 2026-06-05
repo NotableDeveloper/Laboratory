@@ -3,6 +3,84 @@
 HOST="${GIT_TCP_HOST:-localhost}"
 PORT="${GIT_TCP_PORT:-9000}"
 
+load_config() {
+    local repo_path="$1"
+    local config_file="$repo_path/.git-tcp-config"
+
+    if [ ! -f "$config_file" ]; then
+        echo "ERROR: Config file not found at $config_file. Run INIT command first."
+        exit 1
+    fi
+
+    source "$config_file"
+}
+
+read_config() {
+    local repo_path="$1"
+    local config_file="$repo_path/.git-tcp-config"
+    local existing_author=""
+    local existing_email=""
+    local existing_remote_url=""
+    local existing_default_remote=""
+
+    if [ -f "$config_file" ]; then
+        source "$config_file"
+        existing_author="$AUTHOR"
+        existing_email="$EMAIL"
+        existing_remote_url="$REMOTE_URL"
+        existing_default_remote="$DEFAULT_REMOTE"
+    fi
+
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    if [ -f "$config_file" ]; then
+        echo "Edit existing configuration:"
+    else
+        echo "Enter repository configuration:"
+    fi
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+    read -p "Author name [$existing_author]: " input_author
+    AUTHOR="${input_author:-$existing_author}"
+    if [ -z "$AUTHOR" ]; then
+        echo "ERROR: Author name is required."
+        exit 1
+    fi
+
+    read -p "Author email [$existing_email]: " input_email
+    EMAIL="${input_email:-$existing_email}"
+    if [ -z "$EMAIL" ]; then
+        echo "ERROR: Author email is required."
+        exit 1
+    fi
+
+    read -p "Remote repository URL (optional) [$existing_remote_url]: " input_remote_url
+    REMOTE_URL="${input_remote_url:-$existing_remote_url}"
+
+    read -p "Default remote name [$existing_default_remote]: " input_default_remote
+    DEFAULT_REMOTE="${input_default_remote:-$existing_default_remote}"
+    if [ -z "$DEFAULT_REMOTE" ]; then
+        DEFAULT_REMOTE="origin"
+    fi
+
+    echo ""
+}
+
+save_config() {
+    local repo_path="$1"
+    local config_file="$repo_path/.git-tcp-config"
+
+    cat > "$config_file" << EOF
+REPO_PATH=${repo_path}
+AUTHOR=${AUTHOR}
+EMAIL=${EMAIL}
+REMOTE_URL=${REMOTE_URL}
+DEFAULT_REMOTE=${DEFAULT_REMOTE}
+EOF
+
+    echo "Config saved to $config_file"
+}
+
 show_help() {
     cat <<'HELP'
 ╔═══════════════════════════════════════════════════════════════╗
@@ -17,6 +95,7 @@ Commands:
 
   INIT <repo-path>
     Initialize a new Git repository and configure settings interactively.
+    You can modify existing settings by running INIT again.
     - repo-path: Repository path (required)
     Example:
       ./git-tcp-client.sh INIT /app/data/my-repo
@@ -66,6 +145,19 @@ Commands:
       ./git-tcp-client.sh PULL /app/data/my-repo origin
       ./git-tcp-client.sh PULL /app/data/my-repo origin main
       ./git-tcp-client.sh PULL /app/data/my-repo upstream develop
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Config File (.git-tcp-config):
+
+Created interactively when running INIT command. Stored in repository root.
+You can modify existing settings by running INIT again.
+File content:
+  REPO_PATH=/path/to/repository
+  AUTHOR=author name
+  EMAIL=email address
+  REMOTE_URL=remote repository URL (optional)
+  DEFAULT_REMOTE=origin (default remote name for PUSH/PULL)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -125,9 +217,13 @@ case "$COMMAND" in
 
         repo_path="$1"
 
+        mkdir -p "$repo_path"
+        read_config "$repo_path"
+        save_config "$repo_path"
+
         msg="INIT|$repo_path"
-        if [ $# -gt 1 ]; then
-            msg="$msg|$2"
+        if [ -n "$REMOTE_URL" ]; then
+            msg="$msg|$REMOTE_URL"
         fi
 
         send_command "$msg"
